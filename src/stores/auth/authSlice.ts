@@ -1,6 +1,12 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
+import {
+  createSlice,
+  PayloadAction,
+  createAsyncThunk,
+  createSelector,
+} from '@reduxjs/toolkit'
 import AuthService from '@services/authService'
 import ErrorService from '@services/errorService'
+import { RootState } from '@stores/store'
 import { UserStateType, UserType } from './authType'
 
 const initialState: UserStateType = {
@@ -28,25 +34,6 @@ export const getUserSession = createAsyncThunk(
     }
   }
 )
-
-// export const getUserSession = createAsyncThunk(
-//   'authSlice/getUser',
-//   async (token: string, thunkApi) => {
-//     try {
-//       const userData = await AuthService.signIn({ token })
-//       const displayName = userData.email.split('@')[0]
-//       return {
-//         email: userData.email,
-//         token,
-//         displayName,
-//         imgUrl: userData.userImageUrl,
-//       }
-//     } catch (error) {
-//       const message = ErrorService.axiosErrorHandler(error)
-//       return thunkApi.rejectWithValue(message)
-//     }
-//   }
-// )
 
 export const logOutUserThunk = createAsyncThunk(
   'authSlice/logOutUser',
@@ -102,6 +89,21 @@ const authSlice = createSlice({
     })
   },
 })
+const userReducerSelect = (state: RootState) => state.user
+
+export const userSelect = createSelector(
+  [userReducerSelect],
+  (user) => user.user
+)
+export const userPositionSelect = createSelector(
+  [userReducerSelect],
+  (user) => user.userPostion
+)
+
+export const userLoadingSelect = createSelector(
+  [userReducerSelect],
+  (user) => user.loading
+)
 
 export const { setUserPosition, resetPosition } = authSlice.actions
 

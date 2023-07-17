@@ -26,4 +26,4 @@ function App() {
   return <RouterProvider router={routers} />
 }
 
-export default React.memo(App)
+export default App

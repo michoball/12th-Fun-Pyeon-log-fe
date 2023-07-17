@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Select from '@components/common/Select/Select'
 import FunButton from '@components/styles/FunButton'
 import StarBox from '@components/Writing/StarBox/StarBox'
@@ -17,50 +17,47 @@ import {
 } from './WritingBox.styles'
 
 interface EditProps {
-  isEdit?: boolean
+  storeId: string
   originReview?: ReviewType
 }
 
-const WritingBox: React.FC<EditProps> = ({ isEdit, originReview }) => {
+const WritingBox: React.FC<EditProps> = ({ storeId, originReview }) => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const { storeId } = useParams()
 
-  const [starCount, setStarCount] = useState(0)
-  const [selected, setSelected] = useState<string[]>([])
-  const [reviewContent, setReviewContent] = useState('')
+  const [starCount, setStarCount] = useState(originReview?.starCount ?? 0)
+  const [selected, setSelected] = useState<string[]>(
+    originReview?.keywords ?? []
+  )
+  const [reviewContent, setReviewContent] = useState(
+    originReview?.reviewContent ?? ''
+  )
 
-  const reviewId = originReview?.reviewEntryNo
-
-  const submitReview = async () => {
-    if (reviewContent.length === 0) {
+  const submitReview = () => {
+    if (!reviewContent.length) {
       return alert('리뷰를 작성해주세요')
     }
 
-    if (storeId) {
-      const reviewData: WriteType = {
-        reviewContent,
-        starCount,
-        keywords: selected,
-      }
-
-      if (isEdit && reviewId) {
-        await dispatch(updateReview({ reviewData, storeId, reviewId }))
-        navigate(-1)
-      } else {
-        await dispatch(createReview({ reviewData, storeId }))
-        navigate(-1)
-      }
+    const reviewData: WriteType = {
+      reviewContent,
+      starCount,
+      keywords: selected,
     }
+
+    if (originReview) {
+      dispatch(
+        updateReview({
+          reviewData,
+          storeId,
+          reviewId: originReview.reviewEntryNo,
+        })
+      )
+    } else {
+      dispatch(createReview({ reviewData, storeId }))
+    }
+
+    navigate(-1)
   }
-
-  useEffect(() => {
-    if (isEdit && originReview) {
-      setStarCount(originReview.starCount)
-      setSelected(originReview.keywords)
-      setReviewContent(originReview.reviewContent)
-    }
-  }, [isEdit, originReview])
 
   return (
     <WritingBoxWrapper>
@@ -92,7 +89,7 @@ const WritingBox: React.FC<EditProps> = ({ isEdit, originReview }) => {
         </FunButton>
 
         <FunButton onClick={submitReview}>
-          {isEdit ? '수정하기' : '게시하기'}
+          {originReview ? '수정하기' : '게시하기'}
         </FunButton>
       </BtnBox>
     </WritingBoxWrapper>

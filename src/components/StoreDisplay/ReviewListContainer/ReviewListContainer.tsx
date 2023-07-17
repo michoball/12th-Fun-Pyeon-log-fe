@@ -1,12 +1,18 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
+
 import { useNavigate, useParams } from 'react-router-dom'
 import ReviewList from '@components/StoreDisplay/ReviewList/ReviewList'
 import FunButton, { BUTTON_TYPE_CLASSES } from '@components/styles/FunButton'
 import Spinner from '@components/styles/Spinner'
-import { fetchAllReviews } from '@stores/review/reivewSlice'
+import { userSelect } from '@stores/auth/authSlice'
+import { selectedConvSelect } from '@stores/conv/convSlice'
+import {
+  fetchAllReviews,
+  reviewLoadingSelect,
+  reviewsSelect,
+} from '@stores/review/reivewSlice'
 import { ReviewType } from '@stores/review/reviewType'
-import { RootState, useAppDispatch } from '@stores/store'
+import { useAppDispatch, useAppSelector } from '@stores/store'
 import URLUtill from '@utils/urlUtill'
 import { PlusOutlined } from '@ant-design/icons'
 import {
@@ -20,12 +26,10 @@ const ReviewListContainer = () => {
   const { storeId } = useParams()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const reviews = useSelector((state: RootState) => state.review.reviews)
-  const user = useSelector((state: RootState) => state.user.user)
-  const selectedStore = useSelector(
-    (state: RootState) => state.conv.selectedStore
-  )
-  const loading = useSelector((state: RootState) => state.review.loading)
+  const reviews = useAppSelector(reviewsSelect)
+  const user = useAppSelector(userSelect)
+  const selectedStore = useAppSelector(selectedConvSelect)
+  const loading = useAppSelector(reviewLoadingSelect)
 
   const [page, setPage] = useState(0)
   const [reivewLists, setReivewLists] = useState<ReviewType[]>(reviews)
@@ -33,7 +37,6 @@ const ReviewListContainer = () => {
   const observer = useRef<IntersectionObserver | null>(null)
 
   const totalReviewCount = selectedStore?.reviewCount ?? 0
-  // const totalReviewCount = 0
 
   const lastReviewRef = useCallback(
     (node: HTMLDivElement) => {

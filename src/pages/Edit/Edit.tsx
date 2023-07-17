@@ -1,33 +1,31 @@
-import React, { useState, useEffect } from 'react'
-import { useSelector } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom'
+import React from 'react'
+import { useParams } from 'react-router-dom'
 import StoreBasicInfo from '@components/StoreDisplay/StoreBasicInfo/StoreBasicInfo'
 import WritingBox from '@components/Writing/WritingBox/WritingBox'
-import { ReviewType } from '@stores/review/reviewType'
-import { RootState } from '@stores/store'
+import { selectedConvSelect } from '@stores/conv/convSlice'
+import { selectedReviewSelect } from '@stores/review/reivewSlice'
+import { useAppSelector } from '@stores/store'
 import { StoreWrapper } from '@pages/Store/Store.styles'
 
 const Edit = () => {
   const { storeId } = useParams()
-  const navigate = useNavigate()
-  const [originReview, setOriginReview] = useState<ReviewType>()
-  const selectedReview = useSelector(
-    (state: RootState) => state.review.selectedReview
-  )
-
-  useEffect(() => {
-    if (selectedReview) {
-      setOriginReview(selectedReview)
-    } else if (storeId) {
-      alert('잘못된 접근입니다.')
-      navigate(-1)
-    }
-  }, [])
+  const selectedStore = useAppSelector(selectedConvSelect)
+  const selectedReview = useAppSelector(selectedReviewSelect)
 
   return (
     <StoreWrapper>
-      <StoreBasicInfo />
-      <WritingBox isEdit={true} originReview={originReview} />
+      {selectedStore && (
+        <StoreBasicInfo
+          placeName={selectedStore.place_name}
+          addressName={selectedStore.address_name}
+          phone={selectedStore.phone}
+          keywordList={selectedStore.keywordList}
+          starCount={selectedStore.starCount}
+        />
+      )}
+      {selectedReview && storeId && (
+        <WritingBox storeId={storeId} originReview={selectedReview} />
+      )}
     </StoreWrapper>
   )
 }

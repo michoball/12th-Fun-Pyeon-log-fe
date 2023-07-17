@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useSelector } from 'react-redux'
 import Overlay, { OverlayProps } from '@components/Overlay/Overlay'
-import { RootState } from '@stores/store'
+import { RootState, useAppSelector } from '@stores/store'
 
 // const clickedStore = {
 //   placeName: 'ASef',
@@ -13,7 +12,7 @@ import { RootState } from '@stores/store'
 //   starCount: 1,
 // }
 const Tooltip = () => {
-  const clickedStore = useSelector(
+  const clickedStore = useAppSelector(
     (state: RootState) => state.conv.clickedStore
   )
   const [clickStore, setClickStore] = useState<OverlayProps | null>(null)

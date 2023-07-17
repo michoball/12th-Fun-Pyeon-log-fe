@@ -1,10 +1,10 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
 import { Navigate } from 'react-router-dom'
-import { RootState } from '@stores/store'
+import { userSelect } from '@stores/auth/authSlice'
+import { useAppSelector } from '@stores/store'
 
 const ProtectRoute = ({ children }: { children: React.ReactNode }) => {
-  const user = useSelector((state: RootState) => state.user.user)
+  const user = useAppSelector(userSelect)
   if (!user) {
     alert('로그인 후 이용 가능합니다.')
     return <Navigate to="/" />

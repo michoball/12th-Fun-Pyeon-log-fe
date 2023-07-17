@@ -1,9 +1,9 @@
 import React, { forwardRef, useState } from 'react'
-import { useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import KeywordBadge from '@components/styles/KeywordBadge'
+import { userSelect } from '@stores/auth/authSlice'
 import { deleteReview, selectReview } from '@stores/review/reivewSlice'
-import { RootState, useAppDispatch } from '@stores/store'
+import { useAppDispatch, useAppSelector } from '@stores/store'
 import URLUtill from '@utils/urlUtill'
 import { DeleteOutlined, EditOutlined, StarFilled } from '@ant-design/icons'
 import {
@@ -31,7 +31,7 @@ const ReviewList = forwardRef<HTMLDivElement, ReviewType>(function ReviewList(
   const [isWideView, setIsWideView] = useState(false)
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const user = useSelector((state: RootState) => state.user.user)
+  const user = useAppSelector(userSelect)
   const [date] = createdDate.split('T')
   const [displayName] = userId.split('@')
   const onWideViewHandler = () => {

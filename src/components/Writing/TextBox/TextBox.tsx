@@ -3,7 +3,7 @@ import { TextWrapper } from './TextBox.styles'
 
 interface TextProps {
   reviewContent: string
-  setReviewContent: (reviewContent: string) => void
+  setReviewContent: React.Dispatch<React.SetStateAction<string>>
 }
 
 const TextBox: React.FC<TextProps> = ({ reviewContent, setReviewContent }) => {

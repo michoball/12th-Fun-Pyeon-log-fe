@@ -1,46 +1,42 @@
-import React, {
-  useState,
-  useEffect,
-  useContext,
-  useCallback,
-  useRef,
-} from 'react'
-import { useSelector } from 'react-redux'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import List from '@components/ListView/List/List'
 import LoadingWithLogo from '@components/styles/LoadingWithLogo'
 import { MapContext } from '@context/MapContext'
-import { distanceSort, reviewSort, starSort } from '@stores/conv/convSlice'
-import { saveSortType } from '@stores/sort/sortSlice'
-import { RootState, useAppDispatch } from '@stores/store'
+import {
+  convSortTypeSelect,
+  convloadingSelect,
+  setSortType,
+  sortedConvSelect,
+} from '@stores/conv/convSlice'
+import { useAppDispatch, useAppSelector } from '@stores/store'
 import { LIST_SORT_ITEMS } from '@utils/constants'
 import { ListWrapper, SortBtns, ResultBox } from './ListBox.styles'
 
 const ListBox = () => {
   const dispatch = useAppDispatch()
-  const sortedConv = useSelector((state: RootState) => state.conv.sortedStores)
-  const loading = useSelector((state: RootState) => state.conv.loading)
-  const sortType = useSelector((state: RootState) => state.sort.sortType)
+  const sortedConv = useAppSelector(sortedConvSelect)
+  const loading = useAppSelector(convloadingSelect)
+  const sortType = useAppSelector(convSortTypeSelect)
 
-  const { mapApi, setMarkers, selectedMarker, setMyMarker } =
-    useContext(MapContext)
-  const [select, setSelect] = useState(LIST_SORT_ITEMS[0].type)
+  const {
+    mapApi,
+    setMarkers,
+    selectedMarker,
+    kakaoService,
+    displayMyLocation,
+  } = useContext(MapContext)
+
   const [targetStoreId, setTargetStoreId] = useState('')
   const listRef = useRef<HTMLLIElement[] | null[]>([])
+  const myMarkerRef = useRef<kakao.maps.Marker>()
 
   useEffect(() => {
     if (selectedMarker) setTargetStoreId(selectedMarker.getTitle())
   }, [selectedMarker])
 
-  const toggleBtn = useCallback(
-    (type: string) => {
-      setSelect(type)
-      dispatch(saveSortType(type))
-      if (type === 'star') dispatch(starSort())
-      if (type === 'review') dispatch(reviewSort())
-      if (type === 'distance') dispatch(distanceSort())
-    },
-    [dispatch]
-  )
+  const toggleBtn = (type: 'star' | 'review' | 'distance') => {
+    dispatch(setSortType(type))
+  }
 
   useEffect(() => {
     listRef.current[Number(targetStoreId)]?.scrollIntoView({
@@ -50,18 +46,17 @@ const ListBox = () => {
   }, [targetStoreId])
 
   useEffect(() => {
-    toggleBtn(sortType)
-  }, [toggleBtn, sortType, sortedConv])
-
-  useEffect(() => {
-    if (!mapApi) return
-
+    if (!mapApi || !kakaoService) return
     sortedConv.forEach((list) => {
       setMarkers(list, mapApi)
     })
+    // if (myMarkerRef.current) {
+    //   myMarkerRef.current.setMap(null)
+    // }
 
-    setMyMarker()
-  }, [mapApi, sortedConv, setMarkers, setMyMarker])
+    // myMarkerRef.current = displayMyLocation(kakaoService)
+    // myMarkerRef.current?.setMap(mapApi)
+  }, [mapApi, sortedConv, setMarkers, displayMyLocation, kakaoService])
 
   return (
     <ListWrapper>
@@ -69,7 +64,7 @@ const ListBox = () => {
         {LIST_SORT_ITEMS.map((sort) => (
           <li
             key={sort.type}
-            className={select === sort.type ? 'active' : ''}
+            className={sortType === sort.type ? 'active' : ''}
             onClick={() => toggleBtn(sort.type)}
           >
             {sort.title}
