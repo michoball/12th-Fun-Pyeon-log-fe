@@ -129,12 +129,12 @@ const MapProvider = ({ children }: { children: React.ReactNode }) => {
           infoOverlay.current.setMap(null)
         }
       })
+      newMarker.setMap(map)
 
       setNewMarkers((prev) => {
         if (prev.length >= 16) {
           return prev
         }
-        newMarker.setMap(map)
         return [...prev, newMarker]
       })
     },

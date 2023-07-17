@@ -24,6 +24,7 @@ const ListBox = () => {
     selectedMarker,
     kakaoService,
     displayMyLocation,
+    deleteMarkers,
   } = useContext(MapContext)
 
   const [targetStoreId, setTargetStoreId] = useState('')
@@ -47,16 +48,19 @@ const ListBox = () => {
 
   useEffect(() => {
     if (!mapApi || !kakaoService) return
+
+    if (myMarkerRef.current) {
+      myMarkerRef.current.setMap(null)
+    }
+    deleteMarkers()
     sortedConv.forEach((list) => {
       setMarkers(list, mapApi)
     })
-    // if (myMarkerRef.current) {
-    //   myMarkerRef.current.setMap(null)
-    // }
+    myMarkerRef.current = displayMyLocation(kakaoService)
+    myMarkerRef.current?.setMap(mapApi)
 
-    // myMarkerRef.current = displayMyLocation(kakaoService)
-    // myMarkerRef.current?.setMap(mapApi)
-  }, [mapApi, sortedConv, setMarkers, displayMyLocation, kakaoService])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapApi, sortedConv, setMarkers, deleteMarkers, displayMyLocation])
 
   return (
     <ListWrapper>

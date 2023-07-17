@@ -12,15 +12,16 @@ import {
 } from '@stores/conv/convSlice'
 import { initReviews } from '@stores/review/reivewSlice'
 import { useAppDispatch, useAppSelector } from '@stores/store'
-import { DEFAULT_KAKAO_COORD } from '@utils/constants'
 import { StoreWrapper, StoreMapWrapper } from './Store.styles'
 
 const Store = () => {
   const dispatch = useAppDispatch()
   const [storeParam] = useSearchParams()
-  const { mapApi, deleteMarkers, kakaoService, displayMyLocation } =
+  const { mapApi, deleteMarkers, displayMyLocation, kakaoService } =
     useContext(MapContext)
+
   const storeMarkerRef = useRef<kakao.maps.Marker>()
+
   const { storeId } = useParams()
   const selectedStore = useAppSelector(selectedConvSelect)
   const loading = useAppSelector(convloadingSelect)
@@ -30,15 +31,13 @@ const Store = () => {
     if (storeId && encodedAddress && kakaoService) {
       const kakaoSearch = new kakaoService.maps.services.Places()
       const decodedAddress = decodeURIComponent(encodedAddress)
-      const searchedStore: kakao.maps.services.PlacesSearchResult = []
       kakaoSearch.keywordSearch(`${decodedAddress} 편의점`, (data, status) => {
         if (status === kakao.maps.services.Status.OK) {
-          const searchedstore = data.filter((store) => store.id === storeId)
-          searchedStore.push(...searchedstore)
+          const searchedStore = data.filter((store) => store.id === storeId)
+          dispatch(fetchStoreInfo({ storeId, searchedStore }))
+          dispatch(initReviews())
         }
       })
-      dispatch(fetchStoreInfo({ storeId, searchedStore }))
-      dispatch(initReviews())
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeId, dispatch, storeParam])
@@ -47,9 +46,11 @@ const Store = () => {
     if (!mapApi || !kakaoService) return
 
     deleteMarkers()
+
     if (storeMarkerRef.current) {
       storeMarkerRef.current.setMap(null)
     }
+
     if (selectedStore) {
       const [storeBrand] = selectedStore.place_name
         ? selectedStore.place_name.split(' ', 1)
@@ -63,17 +64,8 @@ const Store = () => {
       mapApi.setLevel(3)
       // 편의점 위치에 마커 생성
       storeMarkerRef.current = displayMyLocation(kakaoService, storeBrand)
-    } else {
-      const center = new kakaoService.maps.LatLng(
-        Number(DEFAULT_KAKAO_COORD.lat),
-        Number(DEFAULT_KAKAO_COORD.lng)
-      )
-      mapApi.setCenter(center)
-      mapApi.setLevel(3)
-      // 임의의 편의점 위치에 마커 생성
-      storeMarkerRef.current = displayMyLocation(kakaoService)
+      storeMarkerRef.current?.setMap(mapApi)
     }
-    storeMarkerRef.current?.setMap(mapApi)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStore, deleteMarkers, mapApi, displayMyLocation])

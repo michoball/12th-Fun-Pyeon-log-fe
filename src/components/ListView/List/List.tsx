@@ -35,6 +35,7 @@ const List: React.FC<ListProps> = ({
 }) => {
   const { mapApi, kakaoService, overlay } = useContext(MapContext)
   const dispatch = useAppDispatch()
+
   const listClickHandler = () => {
     if (mapApi && kakaoService && overlay) {
       const center = new kakaoService.maps.LatLng(lat, lng)
@@ -59,9 +60,7 @@ const List: React.FC<ListProps> = ({
 
   return (
     <ConBox
-      onClick={() => {
-        listClickHandler()
-      }}
+      onClick={listClickHandler}
       className={targetStoreId === storeId ? 'active' : ''}
     >
       <Title>
