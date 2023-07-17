@@ -6,7 +6,6 @@ interface KeywordProps {
   title?: string
   keywordArray: string[]
   selected: string[]
-  // setSelected: (selected: string[]) => void
   setSelected: React.Dispatch<React.SetStateAction<string[]>>
   selectType: 'brand' | 'keyword' | 'checkbox'
 }
@@ -18,15 +17,14 @@ const Select: React.FC<KeywordProps> = ({
   setSelected,
   selectType,
 }) => {
-  const selectToggle = (selected: string[], item: string) => {
-    const newArray = (() => {
-      if (!selected.includes(item)) {
-        return [...selected, item]
+  const selectToggle = (item: string) => {
+    setSelected((prev) => {
+      if (!prev.includes(item)) {
+        return [...prev, item]
       } else {
-        return selected.filter((e) => e !== item)
+        return prev.filter((e) => e !== item)
       }
-    })()
-    setSelected(newArray)
+    })
   }
 
   return (
@@ -36,9 +34,7 @@ const Select: React.FC<KeywordProps> = ({
         {keywordArray.map((item) => (
           <li
             key={item}
-            onClick={() => {
-              selectToggle(selected, item)
-            }}
+            onClick={() => selectToggle(item)}
             className={selected.includes(item) ? 'on' : ''}
           >
             {selectType === 'checkbox' && <CheckSquareFilled />}

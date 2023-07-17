@@ -21,7 +21,7 @@ interface MapContextType {
     storeBrand?: string
   ) => kakao.maps.Marker | undefined
   deleteMarkers: () => void
-  setMyMarker: () => void
+  setMyMarker: (kakaoService: typeof kakao) => void
 }
 
 export const MapContext = createContext<MapContextType>({
@@ -37,7 +37,7 @@ export const MapContext = createContext<MapContextType>({
   },
   setMarkers: (data, map) => {},
   deleteMarkers: () => {},
-  setMyMarker: () => {},
+  setMyMarker: (kakao) => {},
 })
 
 const MapProvider = ({ children }: { children: React.ReactNode }) => {
@@ -143,6 +143,7 @@ const MapProvider = ({ children }: { children: React.ReactNode }) => {
   const displayMyLocation = useCallback(
     (kakaoService: typeof kakao, storeBrand?: string) => {
       if (!overlay.current || !mapApi) return
+
       overlay.current.setMap(null)
       const mapCenter =
         mapApi.getCenter() ??
@@ -174,10 +175,10 @@ const MapProvider = ({ children }: { children: React.ReactNode }) => {
     },
     [mapApi]
   )
-
-  const setMyMarker = useCallback(() => {
-    if (!kakaoService) return
+  // deprecated
+  const setMyMarker = useCallback((kakaoService: typeof kakao) => {
     const myMarker = displayMyLocation(kakaoService)
+
     if (myMarker) {
       setNewMarkers((prev) => {
         if (prev.length >= 17) {
