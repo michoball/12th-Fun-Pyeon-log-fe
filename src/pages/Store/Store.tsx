@@ -1,14 +1,17 @@
 import React, { useContext, useEffect, useRef } from 'react'
-import { useSelector } from 'react-redux'
 import { useParams, useSearchParams } from 'react-router-dom'
 import Map from '@components/Map/Map'
 import ReviewListContainer from '@components/StoreDisplay/ReviewListContainer/ReviewListContainer'
 import StoreBasicInfo from '@components/StoreDisplay/StoreBasicInfo/StoreBasicInfo'
 import LoadingWithLogo from '@components/styles/LoadingWithLogo'
 import { MapContext } from '@context/MapContext'
-import { fetchStoreInfo } from '@stores/conv/convSlice'
+import {
+  convloadingSelect,
+  fetchStoreInfo,
+  selectedConvSelect,
+} from '@stores/conv/convSlice'
 import { initReviews } from '@stores/review/reivewSlice'
-import { RootState, useAppDispatch } from '@stores/store'
+import { useAppDispatch, useAppSelector } from '@stores/store'
 import { DEFAULT_KAKAO_COORD } from '@utils/constants'
 import { StoreWrapper, StoreMapWrapper } from './Store.styles'
 
@@ -19,10 +22,8 @@ const Store = () => {
     useContext(MapContext)
   const storeMarkerRef = useRef<kakao.maps.Marker>()
   const { storeId } = useParams()
-  const selectedStore = useSelector(
-    (state: RootState) => state.conv.selectedStore
-  )
-  const loading = useSelector((state: RootState) => state.conv.loading)
+  const selectedStore = useAppSelector(selectedConvSelect)
+  const loading = useAppSelector(convloadingSelect)
 
   useEffect(() => {
     const encodedAddress = storeParam.get('address')
@@ -80,7 +81,15 @@ const Store = () => {
   return (
     <StoreWrapper>
       {loading && <LoadingWithLogo />}
-      <StoreBasicInfo />
+      {selectedStore && (
+        <StoreBasicInfo
+          placeName={selectedStore.place_name}
+          addressName={selectedStore.address_name}
+          phone={selectedStore.phone}
+          keywordList={selectedStore.keywordList}
+          starCount={selectedStore.starCount}
+        />
+      )}
       <ReviewListContainer />
       <StoreMapWrapper>
         <Map />
