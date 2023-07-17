@@ -31,17 +31,19 @@ const ReviewList = forwardRef<HTMLDivElement, ReviewType>(function ReviewList(
   const [isWideView, setIsWideView] = useState(false)
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+
   const user = useAppSelector(userSelect)
+
   const [date] = createdDate.split('T')
   const [displayName] = userId.split('@')
   const onWideViewHandler = () => {
     setIsWideView(!isWideView)
   }
 
-  const deleteRevieHandler = async () => {
+  const deleteRevieHandler = () => {
     if (window.confirm('리뷰를 삭제 하시겠습니까?')) {
       if (storeId) {
-        await dispatch(deleteReview({ storeId, reviewId }))
+        dispatch(deleteReview({ storeId, reviewId }))
         location.reload()
       }
     }
