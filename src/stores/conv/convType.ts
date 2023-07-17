@@ -13,6 +13,7 @@ export interface ConvState {
   sortedStores: ConvType[]
   selectedStore: ConvType | null
   clickedStore: OverlayProps | null
+  sortType: 'star' | 'review' | 'distance'
   loading: boolean
   error: string
 }

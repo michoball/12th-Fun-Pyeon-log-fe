@@ -1,5 +1,10 @@
 import { OverlayProps } from '@components/Overlay/Overlay'
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+import {
+  createSlice,
+  createAsyncThunk,
+  PayloadAction,
+  createSelector,
+} from '@reduxjs/toolkit'
 import ErrorService from '@services/errorService'
 import StoreService from '@services/storeService'
 import { RootState } from '@stores/store'
@@ -11,6 +16,7 @@ const initialState: ConvState = {
   sortedStores: [],
   selectedStore: null,
   clickedStore: null,
+  sortType: 'distance',
   loading: false,
   error: '',
 }
@@ -99,20 +105,11 @@ const convSlice = createSlice({
     setSortStores: (state, action: PayloadAction<ConvType[]>) => {
       state.sortedStores = action.payload
     },
-    reviewSort: (state) => {
-      state.sortedStores = state.sortedStores.sort(
-        (a, b) => b.reviewCount - a.reviewCount
-      )
-    },
-    starSort: (state) => {
-      state.sortedStores = state.sortedStores.sort(
-        (a, b) => b.starCount - a.starCount
-      )
-    },
-    distanceSort: (state) => {
-      state.sortedStores = state.sortedStores.sort(
-        (a, b) => Number(a.distance) - Number(b.distance)
-      )
+    setSortType: (
+      state,
+      action: PayloadAction<'star' | 'review' | 'distance'>
+    ) => {
+      state.sortType = action.payload
     },
   },
   extraReducers(builder) {
@@ -148,12 +145,41 @@ const convSlice = createSlice({
   },
 })
 
-export const {
-  setSortStores,
-  reviewSort,
-  starSort,
-  distanceSort,
-  setClickedStore,
-} = convSlice.actions
+const convReducerSelect = (state: RootState) => state.conv
+
+export const convSelect = createSelector(
+  [convReducerSelect],
+  (conv) => conv.stores
+)
+
+export const convSortTypeSelect = createSelector(
+  [convReducerSelect],
+  (conv) => conv.sortType
+)
+export const selectedConvSelect = createSelector(
+  [convReducerSelect],
+  (conv) => conv.selectedStore
+)
+export const convloadingSelect = createSelector(
+  [convReducerSelect],
+  (conv) => conv.loading
+)
+
+export const sortedConvSelect = createSelector([convReducerSelect], (conv) => {
+  const type = conv.sortType
+  const convs = [...conv.sortedStores]
+  switch (type) {
+    case 'star':
+      return convs.sort((a, b) => b.starCount - a.starCount)
+    case 'review':
+      return convs.sort((a, b) => b.reviewCount - a.reviewCount)
+    case 'distance':
+      return convs.sort((a, b) => Number(a.distance) - Number(b.distance))
+    default:
+      return convs
+  }
+})
+
+export const { setSortStores, setClickedStore, setSortType } = convSlice.actions
 
 export default convSlice.reducer

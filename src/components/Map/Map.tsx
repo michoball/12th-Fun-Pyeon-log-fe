@@ -1,18 +1,16 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react'
-import { useSelector } from 'react-redux'
 import Tooltip from '@components/tooltip/Tooltip'
 
 import { MapContext } from '@context/MapContext'
-import { RootState } from '@stores/store'
+import { searchedCoordSelect } from '@stores/sort/sortSlice'
+import { useAppSelector } from '@stores/store'
 import { DEFAULT_KAKAO_COORD } from '@utils/constants'
 
 import { MapViewer } from './Map.styles'
 
 const Map = () => {
   const isMapMounted = useRef(false)
-  const searchedCoord = useSelector(
-    (state: RootState) => state.sort.searchedCoord
-  )
+  const searchedCoord = useAppSelector(searchedCoordSelect)
 
   const { setMapApi, mapApi, setKakao } = useContext(MapContext)
 

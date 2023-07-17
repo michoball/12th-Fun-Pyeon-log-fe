@@ -1,6 +1,12 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+import {
+  createSlice,
+  createAsyncThunk,
+  PayloadAction,
+  createSelector,
+} from '@reduxjs/toolkit'
 import ErrorService from '@services/errorService'
 import ReviewService from '@services/reviewService'
+import { RootState } from '@stores/store'
 import { ReviewState, ReviewType, WriteType } from './reviewType'
 
 const initialState: ReviewState = {
@@ -134,6 +140,23 @@ const reviewSlice = createSlice({
     })
   },
 })
+
+const reviewReducerSelect = (state: RootState) => state.review
+
+export const reviewsSelect = createSelector(
+  [reviewReducerSelect],
+  (review) => review.reviews
+)
+
+export const selectedReviewSelect = createSelector(
+  [reviewReducerSelect],
+  (review) => review.selectedReview
+)
+
+export const reviewLoadingSelect = createSelector(
+  [reviewReducerSelect],
+  (review) => review.loading
+)
 
 export const { selectReview, initReviews } = reviewSlice.actions
 export default reviewSlice.reducer

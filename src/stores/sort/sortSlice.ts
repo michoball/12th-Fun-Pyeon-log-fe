@@ -1,16 +1,15 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { RootState } from '@stores/store'
 
 export interface ListInfo {
   searchedCoord: { lat: number; lng: number } | null
   brandData: string[]
   keywordData: string[]
-  sortType: string
 }
 const initialState: ListInfo = {
   searchedCoord: null,
   brandData: [],
   keywordData: [],
-  sortType: 'distance',
 }
 
 const sortSlice = createSlice({
@@ -29,12 +28,29 @@ const sortSlice = createSlice({
     saveKeyword: (state, action: PayloadAction<string[]>) => {
       state.keywordData = action.payload
     },
-    saveSortType: (state, action: PayloadAction<string>) => {
-      state.sortType = action.payload
+    resetSort: (state) => {
+      state.keywordData = initialState.keywordData
+      state.brandData = initialState.brandData
     },
   },
 })
 
-export const { saveBrand, saveKeyword, saveSortType, setSearchedCoord } =
+const sortReducerSelect = (state: RootState) => state.sort
+
+export const brandSelect = createSelector(
+  [sortReducerSelect],
+  (sort) => sort.brandData
+)
+
+export const keywordSelect = createSelector(
+  [sortReducerSelect],
+  (sort) => sort.keywordData
+)
+export const searchedCoordSelect = createSelector(
+  [sortReducerSelect],
+  (sort) => sort.searchedCoord
+)
+
+export const { saveBrand, saveKeyword, setSearchedCoord, resetSort } =
   sortSlice.actions
 export default sortSlice.reducer

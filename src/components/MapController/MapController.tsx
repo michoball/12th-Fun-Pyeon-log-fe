@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
-import { useSelector } from 'react-redux'
 import FunButton, { BUTTON_TYPE_CLASSES } from '@components/styles/FunButton'
-import { RootState } from '@stores/store'
+import { searchedCoordSelect } from '@stores/sort/sortSlice'
+import { useAppSelector } from '@stores/store'
 import useSearchStore, { SearchType } from 'hooks/useSearchStore'
 import { AimOutlined } from '@ant-design/icons'
 import { ControlBtns } from './MapController.styles'
@@ -20,9 +20,7 @@ const MapController: React.FC<MapControllerProps> = ({
   userPosition,
   kakaoService,
 }) => {
-  const searchedCoord = useSelector(
-    (state: RootState) => state.sort.searchedCoord
-  )
+  const searchedCoord = useAppSelector(searchedCoordSelect)
   const { searchStore } = useSearchStore()
 
   useEffect(() => {

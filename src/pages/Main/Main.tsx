@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
 import FilterBox from '@components/FilterBox/FilterBox'
 import ListBox from '@components/ListView/ListBox/ListBox'
 import Map from '@components/Map/Map'
 import MapController from '@components/MapController/MapController'
 import { MapContext } from '@context/MapContext'
-import { setUserPosition } from '@stores/auth/authSlice'
-import { RootState, useAppDispatch } from '@stores/store'
+import { setUserPosition, userPositionSelect } from '@stores/auth/authSlice'
+import { useAppDispatch, useAppSelector } from '@stores/store'
 import { DEFAULT_KAKAO_COORD } from '@utils/constants'
 import useSearchStore, { SearchType } from 'hooks/useSearchStore'
 
@@ -32,7 +31,7 @@ const Main = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const dispatch = useAppDispatch()
   const { mapApi, kakaoService } = useContext(MapContext)
-  const userPosition = useSelector((state: RootState) => state.user.userPostion)
+  const userPosition = useAppSelector(userPositionSelect)
   const { searchStore } = useSearchStore()
 
   const updateValue = () => {

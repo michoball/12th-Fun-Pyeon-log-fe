@@ -1,13 +1,17 @@
 import React, { useContext, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import Select from '@components/common/Select/Select'
 import FunButton from '@components/styles/FunButton'
 import { MapContext } from '@context/MapContext'
-import KakaoService from '@services/kakaoService'
-import { setSortStores } from '@stores/conv/convSlice'
+import { convSelect, setSortStores } from '@stores/conv/convSlice'
 import { ConvType } from '@stores/conv/convType'
-import { saveBrand, saveKeyword } from '@stores/sort/sortSlice'
-import { RootState } from '@stores/store'
+import {
+  brandSelect,
+  keywordSelect,
+  resetSort,
+  saveBrand,
+  saveKeyword,
+} from '@stores/sort/sortSlice'
+import { useAppDispatch, useAppSelector } from '@stores/store'
 import { BRANDS, ITEMS } from '@utils/constants'
 import { FilterWrapper, KeywordGroup, Title } from './FilterBox.styles'
 
@@ -16,80 +20,74 @@ interface filterProps {
 }
 
 const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
-  const { setMarkers, deleteMarkers, mapApi } = useContext(MapContext)
-  // const stores = useSelector((state: RootState) => state.conv.stores)
-  const brandData = useSelector((state: RootState) => state.sort.brandData)
-  const keywordData = useSelector((state: RootState) => state.sort.keywordData)
-  const dispatch = useDispatch()
-  const [selectBrand, setSelectBrand] = useState(brandData)
-  // const [selectBrand, setSelectBrand] = useState<string[]>([])
-  const [selectKeyword, setSelectKeyword] = useState(keywordData)
-  // const [selectKeyword, setSelectKeyword] = useState<string[]>([])
-  // const [convList, setConvList] = useState(stores)
+  const dispatch = useAppDispatch()
+  const stores = useAppSelector(convSelect)
+  const brandData = useAppSelector(brandSelect)
+  const keywordData = useAppSelector(keywordSelect)
 
-  // 위 서치로 받아온 data를 다루는 콜백함수
+  const { setMarkers, deleteMarkers, mapApi, overlay } = useContext(MapContext)
+  const [selectBrand, setSelectBrand] = useState(brandData)
+  const [selectKeyword, setSelectKeyword] = useState(keywordData)
+
+  const onStoresFilter = () => {
+    let filteredStore: ConvType[]
+
+    if (selectBrand.length === 0) {
+      filteredStore = [...stores]
+    } else if (selectBrand.includes('기타')) {
+      const newData = stores.filter((data) =>
+        selectBrand.includes(data.place_name.split(' ')[0])
+      )
+      const etcData = stores.filter(
+        (data) =>
+          !['GS25', 'CU', '세븐일레븐', '이마트24', '미니스톱'].includes(
+            data.place_name.split(' ')[0]
+          )
+      )
+      filteredStore = [...newData, ...etcData]
+    } else {
+      filteredStore = stores.filter((data) =>
+        selectBrand.includes(data.place_name.split(' ')[0])
+      )
+    }
+
+    return selectKeyword.length
+      ? filteredStore.filter((data) =>
+          data.keywordList.some((keyword) => selectKeyword.includes(keyword))
+        )
+      : filteredStore
+  }
+
+  // 필터링 된 편의점에 마커를 씌우는 함수
   const sortCallBack = (data: ConvType[]) => {
     if (mapApi) {
+      deleteMarkers()
       for (let i = 0; i < data.length; i++) {
         setMarkers(data[i], mapApi)
       }
     }
   }
 
-  const sortBrand = () => {
-    // if (selectBrand.length === 0) {
-    //   return convList
-    // }
-    // if (selectBrand.includes('기타')) {
-    //   const newData = stores.filter((data) =>
-    //     selectBrand.includes(data.place_name.split(' ')[0])
-    //   )
-    //   const etcData = stores.filter(
-    //     (data) =>
-    //       !['GS25', 'CU', '세븐일레븐', '이마트24', '미니스톱'].includes(
-    //         data.place_name.split(' ')[0]
-    //       )
-    //   )
-    //   return [...newData, ...etcData]
-    // }
-    // return stores.filter((data) =>
-    //   selectBrand.includes(data.place_name.split(' ')[0])
-    // )
+  const sortStoreHandler = () => {
+    const sortResult = onStoresFilter()
+    dispatch(setSortStores(sortResult))
+    sortCallBack(sortResult)
+    dispatch(saveBrand(selectBrand))
+    dispatch(saveKeyword(selectKeyword))
+    setIsFiltering(false)
+    overlay?.setMap(null)
   }
 
-  const sortKeyword = (newData: ConvType[]) => {
-    // if (selectKeyword.length === 0) {
-    //   return newData
-    // }
-    // return newData.filter((data) =>
-    //   data.keywordList.some((keyword) => selectKeyword.includes(keyword))
-    // )
-  }
-
-  const sortStore = () => {
-    // deleteMarkers()
-    // const newData = sortBrand()
-    // const sortResult = sortKeyword(newData)
-    // dispatch(setSortStores(sortResult))
-    // sortCallBack(sortResult)
-    // // dispatch(saveBrand(selectBrand))
-    // // dispatch(saveKeyword(selectKeyword))
-    // setIsFiltering(false)
-    // KakaoService.overlay.setMap(null)
-  }
-
-  const sortInit = () => {
-    // dispatch(setSortStores(convList))
-    // sortCallBack(stores)
-    // setSelectBrand([])
-    // setSelectKeyword([])
-    // dispatch(saveBrand([]))
-    // dispatch(saveKeyword([]))
+  const sortInitHandler = () => {
+    dispatch(setSortStores(stores))
+    dispatch(resetSort())
+    sortCallBack(stores)
+    setIsFiltering(false)
   }
 
   return (
     <FilterWrapper>
-      <FunButton onClick={sortInit} className="initBtn opposite">
+      <FunButton onClick={sortInitHandler} className="initBtn opposite">
         초기화
       </FunButton>
 
@@ -97,9 +95,7 @@ const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
         <Title>브랜드</Title>
         <Select
           keywordArray={BRANDS}
-          // selected={selectBrand}
-          selected={['CU']}
-          // setSelected={setSelectBrand}
+          selected={selectBrand}
           setSelected={setSelectBrand}
           selectType={'brand'}
         />
@@ -124,7 +120,7 @@ const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
 
       <FunButton
         style={{ width: '100%', minHeight: '30px', fontWeight: '700' }}
-        onClick={() => sortStore()}
+        onClick={sortStoreHandler}
       >
         찾아보기
       </FunButton>
