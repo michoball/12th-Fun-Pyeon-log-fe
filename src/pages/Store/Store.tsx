@@ -82,15 +82,17 @@ const Store = () => {
     <StoreWrapper>
       {loading && <LoadingWithLogo />}
       {selectedStore && (
-        <StoreBasicInfo
-          placeName={selectedStore.place_name}
-          addressName={selectedStore.address_name}
-          phone={selectedStore.phone}
-          keywordList={selectedStore.keywordList}
-          starCount={selectedStore.starCount}
-        />
+        <>
+          <StoreBasicInfo
+            placeName={selectedStore.place_name}
+            addressName={selectedStore.address_name}
+            phone={selectedStore.phone}
+            keywordList={selectedStore.keywordList}
+            starCount={selectedStore.starCount}
+          />
+          <ReviewListContainer totalReviewCount={selectedStore.reviewCount} />
+        </>
       )}
-      <ReviewListContainer />
       <StoreMapWrapper>
         <Map />
       </StoreMapWrapper>

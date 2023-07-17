@@ -5,13 +5,11 @@ import ReviewList from '@components/StoreDisplay/ReviewList/ReviewList'
 import FunButton, { BUTTON_TYPE_CLASSES } from '@components/styles/FunButton'
 import Spinner from '@components/styles/Spinner'
 import { userSelect } from '@stores/auth/authSlice'
-import { selectedConvSelect } from '@stores/conv/convSlice'
 import {
   fetchAllReviews,
   reviewLoadingSelect,
   reviewsSelect,
 } from '@stores/review/reivewSlice'
-import { ReviewType } from '@stores/review/reviewType'
 import { useAppDispatch, useAppSelector } from '@stores/store'
 import URLUtill from '@utils/urlUtill'
 import { PlusOutlined } from '@ant-design/icons'
@@ -22,21 +20,25 @@ import {
   ListContainer,
 } from './ReviewListContainer.styles'
 
-const ReviewListContainer = () => {
+interface ReviewListProps {
+  totalReviewCount: number
+}
+
+const ReviewListContainer: React.FC<ReviewListProps> = ({
+  totalReviewCount,
+}) => {
   const { storeId } = useParams()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+
   const reviews = useAppSelector(reviewsSelect)
   const user = useAppSelector(userSelect)
-  const selectedStore = useAppSelector(selectedConvSelect)
   const loading = useAppSelector(reviewLoadingSelect)
 
   const [page, setPage] = useState(0)
-  const [reivewLists, setReivewLists] = useState<ReviewType[]>(reviews)
   const [hasMore, setHasMore] = useState(true)
-  const observer = useRef<IntersectionObserver | null>(null)
 
-  const totalReviewCount = selectedStore?.reviewCount ?? 0
+  const observer = useRef<IntersectionObserver | null>(null)
 
   const lastReviewRef = useCallback(
     (node: HTMLDivElement) => {
@@ -63,10 +65,7 @@ const ReviewListContainer = () => {
   }
 
   useEffect(() => {
-    if (totalReviewCount > 0) {
-      setReivewLists(reviews)
-      setHasMore(totalReviewCount > reviews.length)
-    }
+    setHasMore(totalReviewCount > reviews.length)
   }, [reviews, totalReviewCount])
 
   useEffect(() => {
@@ -98,8 +97,8 @@ const ReviewListContainer = () => {
       </ReviewTop>
 
       <ListContainer>
-        {reivewLists.map((review, idx) => {
-          if (reivewLists.length === idx + 1) {
+        {reviews.map((review, idx) => {
+          if (reviews.length === idx + 1) {
             return (
               <ReviewList
                 ref={lastReviewRef}
