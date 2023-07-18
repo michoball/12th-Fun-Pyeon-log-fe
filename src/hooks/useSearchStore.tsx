@@ -1,10 +1,8 @@
 import { useCallback, useContext } from 'react'
 import { MapContext } from '@context/MapContext'
-
 import { fetchAllStores } from '@stores/conv/convSlice'
 import { setSearchedCoord } from '@stores/sort/sortSlice'
 import { useAppDispatch } from '@stores/store'
-import { DEFAULT_KAKAO_COORD } from '@utils/constants'
 
 // 카카오 서치 함수 구분용 타입
 export enum SearchType {
@@ -14,7 +12,7 @@ export enum SearchType {
 
 const useSearchStore = () => {
   const dispatch = useAppDispatch()
-  const { deleteMarkers } = useContext(MapContext)
+  const { deleteMarkers, setMyMarker } = useContext(MapContext)
   const searchCallBack = useCallback(
     (
       data: kakao.maps.services.PlacesSearchResult,
@@ -49,32 +47,24 @@ const useSearchStore = () => {
       searchTerm?: string
     ) => {
       const kakaoUse = new kakaoService.maps.services.Places()
-      const kakaoOverlay = new kakaoService.maps.CustomOverlay({
-        position: new kakaoService.maps.LatLng(
-          DEFAULT_KAKAO_COORD.lat,
-          DEFAULT_KAKAO_COORD.lng
-        ),
-        zIndex: 1,
-      })
       deleteMarkers()
-      kakaoOverlay.setMap(null)
+
       if (searchType === SearchType.KEYWORD && searchTerm) {
-        //  키워드 서치
         kakaoUse.keywordSearch(`${searchTerm} 편의점`, (data, status) => {
           if (status === kakao.maps.services.Status.OK) {
             searchCallBack(data, mapApi, searchType)
+            setMyMarker(kakaoService)
           }
         })
       } else {
-        //  카테고리 서치
         kakaoUse.categorySearch(
           'CS2',
           (data, status) => {
             if (status === kakao.maps.services.Status.OK) {
               searchCallBack(data, mapApi, searchType)
+              setMyMarker(kakaoService)
             }
           },
-          //  카테고리 서치 옵션
           {
             location: mapApi.getCenter(),
             sort: kakao.maps.services.SortBy.DISTANCE,
@@ -83,7 +73,7 @@ const useSearchStore = () => {
         )
       }
     },
-    [searchCallBack, deleteMarkers]
+    [searchCallBack, setMyMarker, deleteMarkers]
   )
   return { searchStore }
 }

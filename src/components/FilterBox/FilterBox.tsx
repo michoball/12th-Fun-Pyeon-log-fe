@@ -25,7 +25,8 @@ const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
   const brandData = useAppSelector(brandSelect)
   const keywordData = useAppSelector(keywordSelect)
 
-  const { setMarkers, deleteMarkers, mapApi, overlay } = useContext(MapContext)
+  const { setMarkers, deleteMarkers, mapApi, storeOverlay } =
+    useContext(MapContext)
   const [selectBrand, setSelectBrand] = useState(brandData)
   const [selectKeyword, setSelectKeyword] = useState(keywordData)
 
@@ -75,7 +76,7 @@ const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
     dispatch(saveBrand(selectBrand))
     dispatch(saveKeyword(selectKeyword))
     setIsFiltering(false)
-    overlay?.setMap(null)
+    storeOverlay?.setMap(null)
   }
 
   const sortInitHandler = () => {

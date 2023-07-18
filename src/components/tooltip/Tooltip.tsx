@@ -1,45 +1,27 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { createPortal } from 'react-dom'
-import Overlay, { OverlayProps } from '@components/Overlay/Overlay'
+import Overlay from '@components/Overlay/Overlay'
 import { RootState, useAppSelector } from '@stores/store'
 
-// const clickedStore = {
-//   placeName: 'ASef',
-//   storeId: 'fefsf',
-//   address: 'safasefassgasg',
-//   phoneNumber: '12312-14123-123',
-//   reviewCount: 1,
-//   starCount: 1,
-// }
 const Tooltip = () => {
   const clickedStore = useAppSelector(
     (state: RootState) => state.conv.clickedStore
   )
-  const [clickStore, setClickStore] = useState<OverlayProps | null>(null)
-
-  useEffect(() => {
-    if (clickedStore) {
-      setClickStore(clickedStore)
-    }
-  }, [clickedStore])
-
-  if (!clickStore) {
-    return null
-  }
 
   const modalRoot = document.getElementById(`kakao-overlay`)
-  if (!modalRoot) {
+
+  if (!modalRoot || !clickedStore) {
     return null
   }
 
   return createPortal(
     <Overlay
-      placeName={clickStore.placeName}
-      storeId={clickStore.storeId}
-      address={clickStore.address}
-      phoneNumber={clickStore.phoneNumber}
-      reviewCount={clickStore.reviewCount}
-      starCount={clickStore.starCount}
+      placeName={clickedStore.placeName}
+      storeId={clickedStore.storeId}
+      address={clickedStore.address}
+      phoneNumber={clickedStore.phoneNumber}
+      reviewCount={clickedStore.reviewCount}
+      starCount={clickedStore.starCount}
     />,
     modalRoot
   )

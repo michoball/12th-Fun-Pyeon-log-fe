@@ -18,26 +18,19 @@ const ListBox = () => {
   const loading = useAppSelector(convloadingSelect)
   const sortType = useAppSelector(convSortTypeSelect)
 
-  const {
-    mapApi,
-    setMarkers,
-    selectedMarker,
-    kakaoService,
-    displayMyLocation,
-    deleteMarkers,
-  } = useContext(MapContext)
+  const { mapApi, setMarkers, selectedMarker, kakaoService } =
+    useContext(MapContext)
 
   const [targetStoreId, setTargetStoreId] = useState('')
   const listRef = useRef<HTMLLIElement[] | null[]>([])
-  const myMarkerRef = useRef<kakao.maps.Marker>()
-
-  useEffect(() => {
-    if (selectedMarker) setTargetStoreId(selectedMarker.getTitle())
-  }, [selectedMarker])
 
   const toggleBtn = (type: 'star' | 'review' | 'distance') => {
     dispatch(setSortType(type))
   }
+
+  useEffect(() => {
+    if (selectedMarker) setTargetStoreId(selectedMarker.getTitle())
+  }, [selectedMarker])
 
   useEffect(() => {
     listRef.current[Number(targetStoreId)]?.scrollIntoView({
@@ -48,19 +41,10 @@ const ListBox = () => {
 
   useEffect(() => {
     if (!mapApi || !kakaoService) return
-
-    if (myMarkerRef.current) {
-      myMarkerRef.current.setMap(null)
-    }
-    deleteMarkers()
     sortedConv.forEach((list) => {
       setMarkers(list, mapApi)
     })
-    myMarkerRef.current = displayMyLocation(kakaoService)
-    myMarkerRef.current?.setMap(mapApi)
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapApi, sortedConv, setMarkers, deleteMarkers, displayMyLocation])
+  }, [mapApi, sortedConv, setMarkers, kakaoService])
 
   return (
     <ListWrapper>

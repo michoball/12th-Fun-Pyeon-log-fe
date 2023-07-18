@@ -33,15 +33,15 @@ const List: React.FC<ListProps> = ({
   targetStoreId,
   setTargetStoreId,
 }) => {
-  const { mapApi, kakaoService, overlay } = useContext(MapContext)
+  const { mapApi, kakaoService, storeOverlay } = useContext(MapContext)
   const dispatch = useAppDispatch()
 
   const listClickHandler = () => {
-    if (mapApi && kakaoService && overlay) {
+    if (mapApi && kakaoService && storeOverlay) {
       const center = new kakaoService.maps.LatLng(lat, lng)
-      overlay.setPosition(center)
-      overlay.setContent('<div id="kakao-overlay"></div>')
-      overlay.setMap(mapApi)
+      storeOverlay.setPosition(center)
+      storeOverlay.setContent('<div id="kakao-overlay"></div>')
+      storeOverlay.setMap(mapApi)
       mapApi.panTo(center)
 
       setTargetStoreId(storeId)

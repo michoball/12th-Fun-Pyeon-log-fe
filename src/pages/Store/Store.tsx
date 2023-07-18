@@ -43,29 +43,26 @@ const Store = () => {
   }, [storeId, dispatch, storeParam])
 
   useEffect(() => {
-    if (!mapApi || !kakaoService) return
-
-    deleteMarkers()
-
+    if (!mapApi || !kakaoService || !selectedStore) return
     if (storeMarkerRef.current) {
       storeMarkerRef.current.setMap(null)
     }
 
-    if (selectedStore) {
-      const [storeBrand] = selectedStore.place_name
-        ? selectedStore.place_name.split(' ', 1)
-        : ['펀편log']
+    deleteMarkers()
 
-      const center = new kakaoService.maps.LatLng(
-        Number(selectedStore.y),
-        Number(selectedStore.x)
-      ) // 지도의 중심좌표 재설정
-      mapApi.setCenter(center)
-      mapApi.setLevel(3)
-      // 편의점 위치에 마커 생성
-      storeMarkerRef.current = displayMyLocation(kakaoService, storeBrand)
-      storeMarkerRef.current?.setMap(mapApi)
-    }
+    const [storeBrand] = selectedStore.place_name
+      ? selectedStore.place_name.split(' ', 1)
+      : ['펀편log']
+
+    const center = new kakaoService.maps.LatLng(
+      Number(selectedStore.y),
+      Number(selectedStore.x)
+    ) // 지도의 중심좌표 재설정
+    mapApi.setCenter(center)
+    mapApi.setLevel(3)
+    // 편의점 위치에 마커 생성
+    storeMarkerRef.current = displayMyLocation(kakaoService, storeBrand)
+    storeMarkerRef.current?.setMap(mapApi)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStore, deleteMarkers, mapApi, displayMyLocation])

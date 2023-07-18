@@ -27,14 +27,14 @@ styled(MapController)`
 
 const Main = () => {
   const [isFiltering, setIsFiltering] = useState(false)
-  const sortBtnRef = useRef<HTMLButtonElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const dispatch = useAppDispatch()
   const { mapApi, kakaoService } = useContext(MapContext)
   const userPosition = useAppSelector(userPositionSelect)
   const { searchStore } = useSearchStore()
 
-  const updateValue = () => {
+  const updateValue = (e: React.FormEvent) => {
+    e.preventDefault()
     const { current } = inputRef
     if (!current || !mapApi || !kakaoService) return
     if (current.value.trim()) {
@@ -69,26 +69,20 @@ const Main = () => {
     <Wrapper>
       <ListView>
         <ListTop>
-          <SearchBox>
+          <SearchBox onSubmit={updateValue}>
             <input
               type="text"
               ref={inputRef}
               placeholder="편의점을 검색하세요."
-              onKeyUp={(e) => {
-                if (e.key === 'Enter') updateValue()
-              }}
             />
-            <button onClick={updateValue}>
+            <button type="submit">
               <SearchOutlined />
             </button>
           </SearchBox>
 
           <SortBtn
-            ref={sortBtnRef}
             className={isFiltering ? 'on' : ''}
-            onClick={() => {
-              setIsFiltering((prev) => !prev)
-            }}
+            onClick={() => setIsFiltering(!isFiltering)}
           >
             <FilterOutlined />
           </SortBtn>

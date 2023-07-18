@@ -62,7 +62,7 @@ export const ListTop = styled.div`
     height: 50px;
   }
 `
-export const SearchBox = styled.div`
+export const SearchBox = styled.form`
   margin-right: 10px;
   width: 15vw;
   min-width: 170px;
