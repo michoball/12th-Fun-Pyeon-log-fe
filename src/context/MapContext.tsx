@@ -1,77 +1,69 @@
-import React, { createContext, useCallback, useRef, useState } from 'react'
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from 'react'
 import { getMarkerImg } from '@services/markerImg'
-import { setClickedStore } from '@stores/conv/convSlice'
 import { ConvType } from '@stores/conv/convType'
-import { useAppDispatch } from '@stores/store'
 import { DEFAULT_KAKAO_COORD } from '@utils/constants'
 import funMarker from '../assets/brandMaker/funlogMaker.png'
 import myMarker from '../assets/brandMaker/myMarker.svg'
 
 interface MapContextType {
   mapApi: kakao.maps.Map | null
-  selectedMarker: kakao.maps.Marker | null
+  selectedMarker: string
   kakaoService: typeof kakao | null
   storeOverlay: kakao.maps.CustomOverlay | null
   infoOverlay: kakao.maps.CustomOverlay | null
   setMapApi: React.Dispatch<React.SetStateAction<kakao.maps.Map | null>>
   setKakao: (newKakao: typeof kakao) => void
   setMarkers: (data: ConvType, map: kakao.maps.Map) => void
-  displayMyLocation: (
-    kakaoService: typeof kakao,
-    storeBrand?: string
-  ) => kakao.maps.Marker | undefined
   deleteMarkers: () => void
-  setMyMarker: (kakaoService: typeof kakao) => void
+  setMyMarker: (kakaoService: typeof kakao, storeBrand?: string) => void
 }
 
 export const MapContext = createContext<MapContextType>({
   mapApi: null,
-  selectedMarker: null,
+  selectedMarker: '',
   kakaoService: null,
   storeOverlay: null,
   infoOverlay: null,
   setMapApi: (newMap) => {},
   setKakao: (kakao) => {},
-  displayMyLocation: (kakao, brand) => {
-    return undefined
-  },
   setMarkers: (data, map) => {},
   deleteMarkers: () => {},
-  setMyMarker: (kakao) => {},
+  setMyMarker: (kakao, brand) => {},
 })
 
 const MapProvider = ({ children }: { children: React.ReactNode }) => {
   const [mapApi, setMapApi] = useState<kakao.maps.Map | null>(null)
   const [kakaoService, setkakaoService] = useState<typeof kakao | null>(null)
   const [, setNewMarkers] = useState<kakao.maps.Marker[]>([])
-  const [selectedMarker, setSelectedMarker] =
-    useState<kakao.maps.Marker | null>(null)
+  const [selectedMarker, setSelectedMarker] = useState('')
 
   const storeOverlay = useRef<kakao.maps.CustomOverlay | null>(null)
   const infoOverlay = useRef<kakao.maps.CustomOverlay | null>(null)
 
-  const dispatch = useAppDispatch()
+  const setKakao = (newKakao: typeof kakao) => {
+    storeOverlay.current = new newKakao.maps.CustomOverlay({
+      position: new newKakao.maps.LatLng(
+        DEFAULT_KAKAO_COORD.lat,
+        DEFAULT_KAKAO_COORD.lng
+      ),
+      zIndex: 1,
+    })
 
-  const setKakao = useCallback((newKakao: typeof kakao) => {
-    if (!storeOverlay.current && !infoOverlay.current) {
-      storeOverlay.current = new newKakao.maps.CustomOverlay({
-        position: new newKakao.maps.LatLng(
-          DEFAULT_KAKAO_COORD.lat,
-          DEFAULT_KAKAO_COORD.lng
-        ),
-        zIndex: 1,
-      })
-
-      infoOverlay.current = new newKakao.maps.CustomOverlay({
-        position: new newKakao.maps.LatLng(
-          DEFAULT_KAKAO_COORD.lat,
-          DEFAULT_KAKAO_COORD.lng
-        ),
-        zIndex: 1,
-      })
-      setkakaoService(newKakao)
-    }
-  }, [])
+    infoOverlay.current = new newKakao.maps.CustomOverlay({
+      position: new newKakao.maps.LatLng(
+        DEFAULT_KAKAO_COORD.lat,
+        DEFAULT_KAKAO_COORD.lng
+      ),
+      zIndex: 1,
+    })
+    setkakaoService(newKakao)
+  }
 
   const setMarkers = useCallback(
     (data: ConvType, map: kakao.maps.Map) => {
@@ -95,23 +87,12 @@ const MapProvider = ({ children }: { children: React.ReactNode }) => {
 
       // 마커에 클릭이벤트를 등록합니다
       kakaoService.maps.event.addListener(newMarker, 'click', () => {
-        dispatch(
-          setClickedStore({
-            placeName: data.place_name,
-            storeId: data.id,
-            address: data.address_name,
-            phoneNumber: data.phone,
-            reviewCount: data.reviewCount,
-            starCount: data.starCount,
-          })
-        )
         if (storeOverlay.current) {
           storeOverlay.current.setPosition(markerCenter)
           storeOverlay.current.setContent('<div id="kakao-overlay"></div>')
           storeOverlay.current.setMap(map)
         }
-        newMarker.setTitle(data.id)
-        setSelectedMarker(newMarker)
+        setSelectedMarker(data.id)
         map.panTo(markerCenter)
       })
 
@@ -138,8 +119,9 @@ const MapProvider = ({ children }: { children: React.ReactNode }) => {
         return [...prev, newMarker]
       })
     },
-    [dispatch, setNewMarkers, kakaoService]
+    [setNewMarkers, kakaoService]
   )
+
   const displayMyLocation = useCallback(
     (kakaoService: typeof kakao, storeBrand?: string) => {
       if (!infoOverlay.current || !mapApi) return
@@ -171,8 +153,8 @@ const MapProvider = ({ children }: { children: React.ReactNode }) => {
     [mapApi]
   )
   const setMyMarker = useCallback(
-    (kakaoService: typeof kakao) => {
-      const myMarker = displayMyLocation(kakaoService)
+    (kakaoService: typeof kakao, storeBrand?: string) => {
+      const myMarker = displayMyLocation(kakaoService, storeBrand)
       if (myMarker) {
         setNewMarkers((prev) => {
           if (prev.length >= 17) {
@@ -208,10 +190,11 @@ const MapProvider = ({ children }: { children: React.ReactNode }) => {
     setSelectedMarker,
     setMyMarker,
     setKakao,
-    displayMyLocation,
   }
 
   return <MapContext.Provider value={value}>{children}</MapContext.Provider>
 }
+
+export const useKakaoMap = () => useContext(MapContext)
 
 export default MapProvider

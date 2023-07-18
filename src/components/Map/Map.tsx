@@ -1,7 +1,7 @@
-import React, { useCallback, useContext, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import Tooltip from '@components/tooltip/Tooltip'
 
-import { MapContext } from '@context/MapContext'
+import { useKakaoMap } from '@context/MapContext'
 import { searchedCoordSelect } from '@stores/sort/sortSlice'
 import { useAppSelector } from '@stores/store'
 import { DEFAULT_KAKAO_COORD } from '@utils/constants'
@@ -12,7 +12,7 @@ const Map = () => {
   const isMapMounted = useRef(false)
   const searchedCoord = useAppSelector(searchedCoordSelect)
 
-  const { setMapApi, mapApi, setKakao } = useContext(MapContext)
+  const { setMapApi, mapApi, setKakao } = useKakaoMap()
 
   useEffect(() => {
     if (!isMapMounted.current && 'kakao' in window) {

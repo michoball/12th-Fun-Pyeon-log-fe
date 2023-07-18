@@ -1,7 +1,7 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import Select from '@components/common/Select/Select'
 import FunButton from '@components/styles/FunButton'
-import { MapContext } from '@context/MapContext'
+import { useKakaoMap } from '@context/MapContext'
 import { convSelect, setSortStores } from '@stores/conv/convSlice'
 import { ConvType } from '@stores/conv/convType'
 import {
@@ -25,8 +25,8 @@ const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
   const brandData = useAppSelector(brandSelect)
   const keywordData = useAppSelector(keywordSelect)
 
-  const { setMarkers, deleteMarkers, mapApi, storeOverlay } =
-    useContext(MapContext)
+  const { setMarkers, deleteMarkers, mapApi, storeOverlay } = useKakaoMap()
+
   const [selectBrand, setSelectBrand] = useState(brandData)
   const [selectKeyword, setSelectKeyword] = useState(keywordData)
 
@@ -41,7 +41,7 @@ const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
       )
       const etcData = stores.filter(
         (data) =>
-          !['GS25', 'CU', '세븐일레븐', '이마트24', '미니스톱'].includes(
+          !BRANDS.filter((brand) => brand !== '기타').includes(
             data.place_name.split(' ')[0]
           )
       )

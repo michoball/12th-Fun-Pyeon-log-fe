@@ -1,5 +1,5 @@
-import { useCallback, useContext } from 'react'
-import { MapContext } from '@context/MapContext'
+import { useCallback } from 'react'
+import { useKakaoMap } from '@context/MapContext'
 import { fetchAllStores } from '@stores/conv/convSlice'
 import { setSearchedCoord } from '@stores/sort/sortSlice'
 import { useAppDispatch } from '@stores/store'
@@ -12,7 +12,7 @@ export enum SearchType {
 
 const useSearchStore = () => {
   const dispatch = useAppDispatch()
-  const { deleteMarkers, setMyMarker } = useContext(MapContext)
+  const { deleteMarkers, setMyMarker } = useKakaoMap()
   const searchCallBack = useCallback(
     (
       data: kakao.maps.services.PlacesSearchResult,

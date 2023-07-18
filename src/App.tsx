@@ -20,6 +20,7 @@ function App() {
       }
     }
   }, [isScriptLoaded])
+
   if (!isScriptLoaded) {
     return <></>
   }

@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useContext, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import List from '@components/ListView/List/List'
 import LoadingWithLogo from '@components/styles/LoadingWithLogo'
-import { MapContext } from '@context/MapContext'
+import { useKakaoMap } from '@context/MapContext'
 import {
   convSortTypeSelect,
   convloadingSelect,
+  setClickedStore,
   setSortType,
   sortedConvSelect,
 } from '@stores/conv/convSlice'
@@ -18,26 +19,16 @@ const ListBox = () => {
   const loading = useAppSelector(convloadingSelect)
   const sortType = useAppSelector(convSortTypeSelect)
 
-  const { mapApi, setMarkers, selectedMarker, kakaoService } =
-    useContext(MapContext)
+  const { mapApi, setMarkers, selectedMarker, kakaoService } = useKakaoMap()
 
   const [targetStoreId, setTargetStoreId] = useState('')
-  const listRef = useRef<HTMLLIElement[] | null[]>([])
-
-  const toggleBtn = (type: 'star' | 'review' | 'distance') => {
-    dispatch(setSortType(type))
-  }
 
   useEffect(() => {
-    if (selectedMarker) setTargetStoreId(selectedMarker.getTitle())
-  }, [selectedMarker])
-
-  useEffect(() => {
-    listRef.current[Number(targetStoreId)]?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-    })
-  }, [targetStoreId])
+    if (selectedMarker.length) {
+      setTargetStoreId(selectedMarker)
+      dispatch(setClickedStore(selectedMarker))
+    }
+  }, [selectedMarker, dispatch])
 
   useEffect(() => {
     if (!mapApi || !kakaoService) return
@@ -53,7 +44,7 @@ const ListBox = () => {
           <li
             key={sort.type}
             className={sortType === sort.type ? 'active' : ''}
-            onClick={() => toggleBtn(sort.type)}
+            onClick={() => dispatch(setSortType(sort.type))}
           >
             {sort.title}
           </li>
@@ -67,24 +58,18 @@ const ListBox = () => {
           <p className="noResult">검색 결과가 없습니다.</p>
         ) : (
           sortedConv.map((store) => (
-            <li
+            <List
               key={store.id}
-              ref={(el) => (listRef.current[Number(store.id)] = el)}
-            >
-              <List
-                starCount={store.starCount}
-                keywords={store.keywordList}
-                reviewCount={store.reviewCount}
-                placeName={store.place_name}
-                lat={Number(store.y)}
-                lng={Number(store.x)}
-                storeId={store.id}
-                address={store.address_name}
-                phoneNumber={store.phone}
-                targetStoreId={targetStoreId}
-                setTargetStoreId={setTargetStoreId}
-              />
-            </li>
+              starCount={store.starCount}
+              keywords={store.keywordList}
+              reviewCount={store.reviewCount}
+              placeName={store.place_name}
+              lat={Number(store.y)}
+              lng={Number(store.x)}
+              storeId={store.id}
+              targetStoreId={targetStoreId}
+              setTargetStoreId={setTargetStoreId}
+            />
           ))
         )}
       </ResultBox>

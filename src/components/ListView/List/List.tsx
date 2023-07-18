@@ -1,6 +1,6 @@
-import React, { useContext } from 'react'
+import React, { useEffect, useRef } from 'react'
 import KeywordBadge from '@components/styles/KeywordBadge'
-import { MapContext } from '@context/MapContext'
+import { useKakaoMap } from '@context/MapContext'
 import { setClickedStore } from '@stores/conv/convSlice'
 import { useAppDispatch } from '@stores/store'
 import { StarFilled } from '@ant-design/icons'
@@ -14,8 +14,6 @@ interface ListProps {
   starCount: number
   keywords: string[]
   reviewCount: number
-  address: string
-  phoneNumber: string
   targetStoreId: string
   setTargetStoreId: (targetStoreId: string) => void
 }
@@ -28,13 +26,13 @@ const List: React.FC<ListProps> = ({
   starCount,
   reviewCount,
   keywords,
-  address,
-  phoneNumber,
   targetStoreId,
   setTargetStoreId,
 }) => {
-  const { mapApi, kakaoService, storeOverlay } = useContext(MapContext)
   const dispatch = useAppDispatch()
+  const listRef = useRef<HTMLLIElement>(null)
+
+  const { mapApi, kakaoService, storeOverlay } = useKakaoMap()
 
   const listClickHandler = () => {
     if (mapApi && kakaoService && storeOverlay) {
@@ -44,22 +42,29 @@ const List: React.FC<ListProps> = ({
       storeOverlay.setMap(mapApi)
       mapApi.panTo(center)
 
+      dispatch(setClickedStore(storeId))
       setTargetStoreId(storeId)
-      dispatch(
-        setClickedStore({
-          placeName,
-          storeId,
-          address,
-          phoneNumber,
-          reviewCount,
-          starCount,
-        })
-      )
+
+      listRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
     }
   }
 
+  useEffect(() => {
+    if (!listRef.current) return
+    if (storeId === targetStoreId) {
+      listRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    }
+  }, [storeId, targetStoreId])
+
   return (
     <ConBox
+      ref={listRef}
       onClick={listClickHandler}
       className={targetStoreId === storeId ? 'active' : ''}
     >

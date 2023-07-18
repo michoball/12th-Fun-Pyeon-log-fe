@@ -1,4 +1,3 @@
-import { OverlayProps } from '@components/Overlay/Overlay'
 import {
   createSlice,
   createAsyncThunk,
@@ -99,8 +98,19 @@ const convSlice = createSlice({
   name: 'conv',
   initialState,
   reducers: {
-    setClickedStore: (state, action: PayloadAction<OverlayProps>) => {
-      state.clickedStore = action.payload
+    setClickedStore: (state, action: PayloadAction<string>) => {
+      const clickedId = action.payload
+      const selectedStore = state.sortedStores.filter(
+        (store) => store.id === clickedId
+      )[0]
+      state.clickedStore = {
+        placeName: selectedStore.place_name,
+        storeId: selectedStore.storeId,
+        address: selectedStore.address_name,
+        phoneNumber: selectedStore.phone,
+        reviewCount: selectedStore.reviewCount,
+        starCount: selectedStore.starCount,
+      }
     },
     setSortStores: (state, action: PayloadAction<ConvType[]>) => {
       state.sortedStores = action.payload
@@ -110,6 +120,24 @@ const convSlice = createSlice({
       action: PayloadAction<'star' | 'review' | 'distance'>
     ) => {
       state.sortType = action.payload
+      const convs = [...state.sortedStores]
+      switch (action.payload) {
+        case 'star':
+          state.sortedStores = convs.sort((a, b) => b.starCount - a.starCount)
+          break
+        case 'review':
+          state.sortedStores = convs.sort(
+            (a, b) => b.reviewCount - a.reviewCount
+          )
+          break
+        case 'distance':
+          state.sortedStores = convs.sort(
+            (a, b) => Number(a.distance) - Number(b.distance)
+          )
+          break
+        default:
+          state.sortedStores = convs
+      }
     },
   },
   extraReducers(builder) {

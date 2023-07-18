@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import FilterBox from '@components/FilterBox/FilterBox'
 import ListBox from '@components/ListView/ListBox/ListBox'
 import Map from '@components/Map/Map'
 import MapController from '@components/MapController/MapController'
-import { MapContext } from '@context/MapContext'
+import { useKakaoMap } from '@context/MapContext'
 import { setUserPosition, userPositionSelect } from '@stores/auth/authSlice'
 import { useAppDispatch, useAppSelector } from '@stores/store'
 import { DEFAULT_KAKAO_COORD } from '@utils/constants'
@@ -29,7 +29,7 @@ const Main = () => {
   const [isFiltering, setIsFiltering] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const dispatch = useAppDispatch()
-  const { mapApi, kakaoService } = useContext(MapContext)
+  const { mapApi, kakaoService } = useKakaoMap()
   const userPosition = useAppSelector(userPositionSelect)
   const { searchStore } = useSearchStore()
 

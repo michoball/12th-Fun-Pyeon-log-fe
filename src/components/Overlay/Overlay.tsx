@@ -12,7 +12,7 @@ import {
   DetailView,
 } from './Overlay.styles'
 
-export interface OverlayProps {
+interface OverlayProps {
   placeName: string
   storeId: string
   address: string

@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const ConBox = styled.div`
+export const ConBox = styled.li`
   border-bottom: 1px solid ${(props) => props.theme.colors.border};
   padding: 20px;
   cursor: pointer;
