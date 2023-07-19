@@ -135,12 +135,13 @@ export const DetailView = styled.div`
   padding-top: 10px;
   border-top: 1px solid ${(props) => props.theme.colors.border};
 
-  a {
+  .link {
     text-decoration: none;
     background-color: ${(props) => props.theme.colors.purple};
     color: white;
     padding: 5px 20px;
     border-radius: 5px;
+    cursor: pointer;
   }
 
   @media screen and (max-width: 576px) {
@@ -149,7 +150,7 @@ export const DetailView = styled.div`
     padding: 7px;
     border-top: 1px solid ${(props) => props.theme.colors.border};
 
-    a {
+    .link {
       font-size: 13px;
       font-weight: 600;
       padding: 5px 10px;

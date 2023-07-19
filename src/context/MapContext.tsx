@@ -16,12 +16,11 @@ interface MapContextType {
   selectedMarker: string
   kakaoService: typeof kakao | null
   storeOverlay: kakao.maps.CustomOverlay | null
-  infoOverlay: kakao.maps.CustomOverlay | null
   setMapApi: React.Dispatch<React.SetStateAction<kakao.maps.Map | null>>
   setKakao: (newKakao: typeof kakao) => void
-  setMarkers: (data: ConvType, map: kakao.maps.Map) => void
   deleteMarkers: () => void
   setMyMarker: (kakaoService: typeof kakao, storeBrand?: string) => void
+  markerResetting: (data: ConvType[]) => void
 }
 
 export const MapContext = createContext<MapContextType>({
@@ -29,12 +28,11 @@ export const MapContext = createContext<MapContextType>({
   selectedMarker: '',
   kakaoService: null,
   storeOverlay: null,
-  infoOverlay: null,
   setMapApi: (newMap) => {},
   setKakao: (kakao) => {},
-  setMarkers: (data, map) => {},
   deleteMarkers: () => {},
   setMyMarker: (kakao, brand) => {},
+  markerResetting: (data) => {},
 })
 
 const MapProvider = ({ children }: { children: React.ReactNode }) => {
@@ -65,7 +63,7 @@ const MapProvider = ({ children }: { children: React.ReactNode }) => {
     setkakaoService(newKakao)
   }
 
-  const setMarkers = useCallback(
+  const setMarker = useCallback(
     (data: ConvType, map: kakao.maps.Map) => {
       if (!kakaoService) return
       const [storeBrand] = data.place_name.split(' ')
@@ -111,11 +109,11 @@ const MapProvider = ({ children }: { children: React.ReactNode }) => {
         }
       })
 
-      newMarker.setMap(map)
       setNewMarkers((prev) => {
         if (prev.length >= 16) {
           return prev
         }
+        newMarker.setMap(map)
         return [...prev, newMarker]
       })
     },
@@ -178,18 +176,28 @@ const MapProvider = ({ children }: { children: React.ReactNode }) => {
     })
   }, [])
 
+  const markerResetting = useCallback(
+    (data: ConvType[]) => {
+      if (!mapApi) return
+      deleteMarkers()
+      data.forEach((list) => {
+        setMarker(list, mapApi)
+      })
+    },
+    [mapApi, deleteMarkers, setMarker]
+  )
+
   const value = {
     mapApi,
     kakaoService,
     selectedMarker,
     storeOverlay: storeOverlay.current,
-    infoOverlay: infoOverlay.current,
     setMapApi,
-    setMarkers,
     deleteMarkers,
     setSelectedMarker,
     setMyMarker,
     setKakao,
+    markerResetting,
   }
 
   return <MapContext.Provider value={value}>{children}</MapContext.Provider>

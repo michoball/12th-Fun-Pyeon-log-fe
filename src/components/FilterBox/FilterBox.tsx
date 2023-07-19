@@ -25,7 +25,7 @@ const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
   const brandData = useAppSelector(brandSelect)
   const keywordData = useAppSelector(keywordSelect)
 
-  const { setMarkers, deleteMarkers, mapApi, storeOverlay } = useKakaoMap()
+  const { storeOverlay, markerResetting } = useKakaoMap()
 
   const [selectBrand, setSelectBrand] = useState(brandData)
   const [selectKeyword, setSelectKeyword] = useState(keywordData)
@@ -34,18 +34,14 @@ const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
     let filteredStore: ConvType[]
 
     if (selectBrand.length === 0) {
-      filteredStore = [...stores]
+      filteredStore = stores
     } else if (selectBrand.includes('기타')) {
-      const newData = stores.filter((data) =>
-        selectBrand.includes(data.place_name.split(' ')[0])
+      const notSelectedBrand = BRANDS.filter(
+        (brand) => !selectBrand.includes(brand)
       )
-      const etcData = stores.filter(
-        (data) =>
-          !BRANDS.filter((brand) => brand !== '기타').includes(
-            data.place_name.split(' ')[0]
-          )
+      filteredStore = stores.filter(
+        (data) => !notSelectedBrand.includes(data.place_name.split(' ')[0])
       )
-      filteredStore = [...newData, ...etcData]
     } else {
       filteredStore = stores.filter((data) =>
         selectBrand.includes(data.place_name.split(' ')[0])
@@ -59,20 +55,10 @@ const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
       : filteredStore
   }
 
-  // 필터링 된 편의점에 마커를 씌우는 함수
-  const sortCallBack = (data: ConvType[]) => {
-    if (mapApi) {
-      deleteMarkers()
-      for (let i = 0; i < data.length; i++) {
-        setMarkers(data[i], mapApi)
-      }
-    }
-  }
-
   const sortStoreHandler = () => {
     const sortResult = onStoresFilter()
     dispatch(setSortStores(sortResult))
-    sortCallBack(sortResult)
+    markerResetting(sortResult)
     dispatch(saveBrand(selectBrand))
     dispatch(saveKeyword(selectKeyword))
     setIsFiltering(false)
@@ -82,7 +68,7 @@ const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
   const sortInitHandler = () => {
     dispatch(setSortStores(stores))
     dispatch(resetSort())
-    sortCallBack(stores)
+    markerResetting(stores)
     setIsFiltering(false)
   }
 

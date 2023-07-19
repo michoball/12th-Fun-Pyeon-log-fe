@@ -19,23 +19,20 @@ const ListBox = () => {
   const loading = useAppSelector(convloadingSelect)
   const sortType = useAppSelector(convSortTypeSelect)
 
-  const { mapApi, setMarkers, selectedMarker, kakaoService } = useKakaoMap()
+  const { selectedMarker, markerResetting } = useKakaoMap()
 
   const [targetStoreId, setTargetStoreId] = useState('')
 
   useEffect(() => {
-    if (selectedMarker.length) {
+    if (selectedMarker.length > 0) {
       setTargetStoreId(selectedMarker)
       dispatch(setClickedStore(selectedMarker))
     }
   }, [selectedMarker, dispatch])
 
   useEffect(() => {
-    if (!mapApi || !kakaoService) return
-    sortedConv.forEach((list) => {
-      setMarkers(list, mapApi)
-    })
-  }, [mapApi, sortedConv, setMarkers, kakaoService])
+    markerResetting(sortedConv)
+  }, [sortedConv, markerResetting])
 
   return (
     <ListWrapper>

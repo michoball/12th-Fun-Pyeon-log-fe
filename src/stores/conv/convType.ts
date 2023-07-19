@@ -6,20 +6,15 @@ export interface ConvType extends kakao.maps.services.PlacesSearchResultItem {
   customDistance: number
 }
 
-export interface MarkerConv {
-  placeName: string
-  storeId: string
-  address: string
-  phoneNumber: string
-  reviewCount: number
-  starCount: number
+export interface FilterType {
+  brand: string[]
+  keyword: string[]
 }
 
 export interface ConvState {
   stores: ConvType[]
   sortedStores: ConvType[]
-  selectedStore: ConvType | null
-  clickedStore: MarkerConv | null
+  clickedStore: ConvType | null
   sortType: 'star' | 'review' | 'distance'
   loading: boolean
   error: string

@@ -1,6 +1,7 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { getBrandImg } from '@services/markerImg'
+import URLUtill from '@utils/urlUtill'
 import funlogImg from '../../assets/convImg/funlog.png'
 import phone from '../../assets/phone.png'
 import pin from '../../assets/pin.png'
@@ -29,8 +30,9 @@ const Overlay: React.FC<OverlayProps> = ({
   reviewCount,
   starCount,
 }) => {
-  const addressEncode = encodeURIComponent(address)
-  const storeBrand = placeName.split(' ')[0]
+  const navigate = useNavigate()
+  const storeUrl = URLUtill.getStoreUrl(storeId, address)
+  const [storeBrand] = placeName.split(' ', 1)
   const brandimg = getBrandImg(storeBrand)
 
   return (
@@ -57,7 +59,9 @@ const Overlay: React.FC<OverlayProps> = ({
         </div>
       </StoreInfo>
       <DetailView>
-        <Link to={`/stores/${storeId}?address=${addressEncode}`}>상세보기</Link>
+        <div className="link" onClick={() => navigate(storeUrl)}>
+          상세보기
+        </div>
       </DetailView>
     </OverlayContainer>
   )

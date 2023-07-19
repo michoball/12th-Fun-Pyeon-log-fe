@@ -8,12 +8,12 @@ import ErrorService from '@services/errorService'
 import StoreService from '@services/storeService'
 import { RootState } from '@stores/store'
 import { calcDistance } from '@utils/calc'
-import { ConvState, ConvType } from './convType'
+import { BRANDS } from '@utils/constants'
+import { ConvState, ConvType, FilterType } from './convType'
 
 const initialState: ConvState = {
   stores: [],
   sortedStores: [],
-  selectedStore: null,
   clickedStore: null,
   sortType: 'distance',
   loading: false,
@@ -51,42 +51,7 @@ export const fetchAllStores = createAsyncThunk(
         )
         return { ...data, ...matchStore, distance: String(customDistance) }
       })
-      return storeData.sort((a, b) => Number(a.distance) - Number(b.distance))
-    } catch (error) {
-      const message = ErrorService.axiosErrorHandler(error)
-      return thunkApi.rejectWithValue(message)
-    }
-  }
-)
-
-// 클릭한 한개의 편의점에 대한 정보 가져오기
-export const fetchStoreInfo = createAsyncThunk<
-  ConvType,
-  { storeId: string; searchedStore: kakao.maps.services.PlacesSearchResult },
-  { state: RootState }
->(
-  'convStore/fetchStore',
-  async (
-    storeData: {
-      storeId: string
-      searchedStore: kakao.maps.services.PlacesSearchResult
-    },
-    thunkApi
-  ) => {
-    try {
-      const { stores } = thunkApi.getState().conv
-      const { storeId, searchedStore } = storeData
-
-      const storeInfo = await StoreService.getStore(storeId)
-
-      const result =
-        searchedStore.length > 0
-          ? { ...searchedStore[0], ...storeInfo }
-          : {
-              ...stores.filter((store) => store.id === storeId)[0],
-              ...storeInfo,
-            }
-      return result
+      return storeData
     } catch (error) {
       const message = ErrorService.axiosErrorHandler(error)
       return thunkApi.rejectWithValue(message)
@@ -103,14 +68,7 @@ const convSlice = createSlice({
       const selectedStore = state.sortedStores.filter(
         (store) => store.id === clickedId
       )[0]
-      state.clickedStore = {
-        placeName: selectedStore.place_name,
-        storeId: selectedStore.storeId,
-        address: selectedStore.address_name,
-        phoneNumber: selectedStore.phone,
-        reviewCount: selectedStore.reviewCount,
-        starCount: selectedStore.starCount,
-      }
+      state.clickedStore = selectedStore
     },
     setSortStores: (state, action: PayloadAction<ConvType[]>) => {
       state.sortedStores = action.payload
@@ -120,24 +78,31 @@ const convSlice = createSlice({
       action: PayloadAction<'star' | 'review' | 'distance'>
     ) => {
       state.sortType = action.payload
-      const convs = [...state.sortedStores]
-      switch (action.payload) {
-        case 'star':
-          state.sortedStores = convs.sort((a, b) => b.starCount - a.starCount)
-          break
-        case 'review':
-          state.sortedStores = convs.sort(
-            (a, b) => b.reviewCount - a.reviewCount
-          )
-          break
-        case 'distance':
-          state.sortedStores = convs.sort(
-            (a, b) => Number(a.distance) - Number(b.distance)
-          )
-          break
-        default:
-          state.sortedStores = convs
+    },
+    filterStore: (state, action: PayloadAction<FilterType>) => {
+      const { stores } = state
+
+      const { brand, keyword } = action.payload
+      let filteredStore: ConvType[]
+      if (!brand.length) {
+        filteredStore = [...stores]
+      } else if (brand.includes('기타')) {
+        const notSelectedBrand = BRANDS.filter(
+          (brand) => !brand.includes(brand)
+        )
+        filteredStore = stores.filter(
+          (data) => !notSelectedBrand.includes(data.place_name.split(' ')[0])
+        )
+      } else {
+        filteredStore = stores.filter((data) =>
+          brand.includes(data.place_name.split(' ')[0])
+        )
       }
+      state.sortedStores = keyword.length
+        ? filteredStore.filter((data) =>
+            data.keywordList.some((keyword) => keyword.includes(keyword))
+          )
+        : filteredStore
     },
   },
   extraReducers(builder) {
@@ -156,20 +121,6 @@ const convSlice = createSlice({
       state.loading = false
       state.error = action.error.message ?? ''
     })
-    builder.addCase(fetchStoreInfo.pending, (state) => {
-      state.loading = true
-    })
-    builder.addCase(
-      fetchStoreInfo.fulfilled,
-      (state, action: PayloadAction<ConvType>) => {
-        state.loading = false
-        state.selectedStore = action.payload
-      }
-    )
-    builder.addCase(fetchStoreInfo.rejected, (state, action) => {
-      state.loading = false
-      state.error = action.error.message ?? ''
-    })
   },
 })
 
@@ -184,30 +135,30 @@ export const convSortTypeSelect = createSelector(
   [convReducerSelect],
   (conv) => conv.sortType
 )
-export const selectedConvSelect = createSelector(
-  [convReducerSelect],
-  (conv) => conv.selectedStore
-)
 export const convloadingSelect = createSelector(
   [convReducerSelect],
   (conv) => conv.loading
 )
 
+export const clickedStoreSelect = createSelector(
+  [convReducerSelect],
+  (conv) => conv.clickedStore
+)
+
 export const sortedConvSelect = createSelector([convReducerSelect], (conv) => {
-  const type = conv.sortType
-  const convs = [...conv.sortedStores]
-  switch (type) {
+  const { sortedStores, sortType } = conv
+  const convs = [...sortedStores]
+  switch (sortType) {
     case 'star':
       return convs.sort((a, b) => b.starCount - a.starCount)
     case 'review':
       return convs.sort((a, b) => b.reviewCount - a.reviewCount)
     case 'distance':
       return convs.sort((a, b) => Number(a.distance) - Number(b.distance))
-    default:
-      return convs
   }
 })
 
-export const { setSortStores, setClickedStore, setSortType } = convSlice.actions
+export const { setClickedStore, setSortType, filterStore, setSortStores } =
+  convSlice.actions
 
 export default convSlice.reducer

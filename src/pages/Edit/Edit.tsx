@@ -2,14 +2,14 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import StoreBasicInfo from '@components/StoreDisplay/StoreBasicInfo/StoreBasicInfo'
 import WritingBox from '@components/Writing/WritingBox/WritingBox'
-import { selectedConvSelect } from '@stores/conv/convSlice'
+import { clickedStoreSelect } from '@stores/conv/convSlice'
 import { selectedReviewSelect } from '@stores/review/reivewSlice'
 import { useAppSelector } from '@stores/store'
 import { StoreWrapper } from '@pages/Store/Store.styles'
 
 const Edit = () => {
   const { storeId } = useParams()
-  const selectedStore = useAppSelector(selectedConvSelect)
+  const selectedStore = useAppSelector(clickedStoreSelect)
   const selectedReview = useAppSelector(selectedReviewSelect)
 
   return (

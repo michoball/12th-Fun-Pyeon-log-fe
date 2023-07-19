@@ -26,10 +26,11 @@ styled(MapController)`
 `
 
 const Main = () => {
-  const [isFiltering, setIsFiltering] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
   const dispatch = useAppDispatch()
   const { mapApi, kakaoService } = useKakaoMap()
+  const [isFiltering, setIsFiltering] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
   const userPosition = useAppSelector(userPositionSelect)
   const { searchStore } = useSearchStore()
 

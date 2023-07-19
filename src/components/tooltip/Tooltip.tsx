@@ -1,12 +1,11 @@
 import React from 'react'
 import { createPortal } from 'react-dom'
 import Overlay from '@components/Overlay/Overlay'
-import { RootState, useAppSelector } from '@stores/store'
+import { clickedStoreSelect } from '@stores/conv/convSlice'
+import { useAppSelector } from '@stores/store'
 
 const Tooltip = () => {
-  const clickedStore = useAppSelector(
-    (state: RootState) => state.conv.clickedStore
-  )
+  const clickedStore = useAppSelector(clickedStoreSelect)
 
   const modalRoot = document.getElementById(`kakao-overlay`)
 
@@ -16,10 +15,10 @@ const Tooltip = () => {
 
   return createPortal(
     <Overlay
-      placeName={clickedStore.placeName}
+      placeName={clickedStore.place_name}
       storeId={clickedStore.storeId}
-      address={clickedStore.address}
-      phoneNumber={clickedStore.phoneNumber}
+      address={clickedStore.address_name}
+      phoneNumber={clickedStore.phone}
       reviewCount={clickedStore.reviewCount}
       starCount={clickedStore.starCount}
     />,

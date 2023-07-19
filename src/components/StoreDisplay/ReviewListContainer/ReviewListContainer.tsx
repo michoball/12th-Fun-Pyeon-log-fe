@@ -72,8 +72,7 @@ const ReviewListContainer: React.FC<ReviewListProps> = ({
     if (storeId && hasMore) {
       dispatch(fetchAllReviews({ storeId, page }))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, storeId, dispatch])
+  }, [page, storeId, dispatch, hasMore])
 
   return (
     <ReviewListWrapper>
