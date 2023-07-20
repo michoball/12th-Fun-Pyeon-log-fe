@@ -2,8 +2,6 @@ import React, { useState } from 'react'
 import Select from '@components/common/Select/Select'
 import FunButton from '@components/styles/FunButton'
 import { useKakaoMap } from '@context/MapContext'
-import { convSelect, setSortStores } from '@stores/conv/convSlice'
-import { ConvType } from '@stores/conv/convType'
 import {
   brandSelect,
   keywordSelect,
@@ -21,44 +19,15 @@ interface filterProps {
 
 const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
   const dispatch = useAppDispatch()
-  const stores = useAppSelector(convSelect)
   const brandData = useAppSelector(brandSelect)
   const keywordData = useAppSelector(keywordSelect)
 
-  const { storeOverlay, markerResetting } = useKakaoMap()
+  const { storeOverlay } = useKakaoMap()
 
   const [selectBrand, setSelectBrand] = useState(brandData)
   const [selectKeyword, setSelectKeyword] = useState(keywordData)
 
-  const onStoresFilter = () => {
-    let filteredStore: ConvType[]
-
-    if (selectBrand.length === 0) {
-      filteredStore = stores
-    } else if (selectBrand.includes('기타')) {
-      const notSelectedBrand = BRANDS.filter(
-        (brand) => !selectBrand.includes(brand)
-      )
-      filteredStore = stores.filter(
-        (data) => !notSelectedBrand.includes(data.place_name.split(' ')[0])
-      )
-    } else {
-      filteredStore = stores.filter((data) =>
-        selectBrand.includes(data.place_name.split(' ')[0])
-      )
-    }
-
-    return selectKeyword.length
-      ? filteredStore.filter((data) =>
-          data.keywordList.some((keyword) => selectKeyword.includes(keyword))
-        )
-      : filteredStore
-  }
-
   const sortStoreHandler = () => {
-    const sortResult = onStoresFilter()
-    dispatch(setSortStores(sortResult))
-    markerResetting(sortResult)
     dispatch(saveBrand(selectBrand))
     dispatch(saveKeyword(selectKeyword))
     setIsFiltering(false)
@@ -66,9 +35,7 @@ const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
   }
 
   const sortInitHandler = () => {
-    dispatch(setSortStores(stores))
     dispatch(resetSort())
-    markerResetting(stores)
     setIsFiltering(false)
   }
 

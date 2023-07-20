@@ -155,7 +155,7 @@ const MapProvider = ({ children }: { children: React.ReactNode }) => {
       const myMarker = displayMyLocation(kakaoService, storeBrand)
       if (myMarker) {
         setNewMarkers((prev) => {
-          if (prev.length >= 17) {
+          if (prev.length > 17) {
             storeOverlay.current?.setMap(null)
             myMarker?.setMap(null)
             return prev
@@ -178,13 +178,14 @@ const MapProvider = ({ children }: { children: React.ReactNode }) => {
 
   const markerResetting = useCallback(
     (data: ConvType[]) => {
-      if (!mapApi) return
+      if (!mapApi || !kakaoService) return
       deleteMarkers()
       data.forEach((list) => {
         setMarker(list, mapApi)
       })
+      setMyMarker(kakaoService)
     },
-    [mapApi, deleteMarkers, setMarker]
+    [mapApi, setMarker, deleteMarkers, kakaoService, setMyMarker]
   )
 
   const value = {

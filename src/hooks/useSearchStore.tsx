@@ -1,5 +1,4 @@
 import { useCallback } from 'react'
-import { useKakaoMap } from '@context/MapContext'
 import { fetchAllStores } from '@stores/conv/convSlice'
 import { setSearchedCoord } from '@stores/sort/sortSlice'
 import { useAppDispatch } from '@stores/store'
@@ -12,7 +11,6 @@ export enum SearchType {
 
 const useSearchStore = () => {
   const dispatch = useAppDispatch()
-  const { deleteMarkers, setMyMarker } = useKakaoMap()
   const searchCallBack = useCallback(
     (
       data: kakao.maps.services.PlacesSearchResult,
@@ -47,13 +45,11 @@ const useSearchStore = () => {
       searchTerm?: string
     ) => {
       const kakaoUse = new kakaoService.maps.services.Places()
-      deleteMarkers()
 
       if (searchType === SearchType.KEYWORD && searchTerm) {
         kakaoUse.keywordSearch(`${searchTerm} 편의점`, (data, status) => {
           if (status === kakao.maps.services.Status.OK) {
             searchCallBack(data, mapApi, searchType)
-            setMyMarker(kakaoService)
           }
         })
       } else {
@@ -62,7 +58,6 @@ const useSearchStore = () => {
           (data, status) => {
             if (status === kakao.maps.services.Status.OK) {
               searchCallBack(data, mapApi, searchType)
-              setMyMarker(kakaoService)
             }
           },
           {
@@ -73,7 +68,7 @@ const useSearchStore = () => {
         )
       }
     },
-    [searchCallBack, setMyMarker, deleteMarkers]
+    [searchCallBack]
   )
   return { searchStore }
 }

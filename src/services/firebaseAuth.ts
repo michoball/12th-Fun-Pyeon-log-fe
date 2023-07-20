@@ -2,10 +2,8 @@ import { initializeApp } from 'firebase/app'
 import {
   getAuth,
   GoogleAuthProvider,
-  onAuthStateChanged,
   signInWithPopup,
   signOut,
-  User,
 } from 'firebase/auth'
 
 const firebaseConfig = {
