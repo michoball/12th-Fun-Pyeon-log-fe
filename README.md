@@ -3,11 +3,9 @@
 
 
 ### **🏠 _배포 주소_** [https://majestic-babka-2e99ac.netlify.app/](https://majestic-babka-2e99ac.netlify.app/)
-# **나만의 편의점 찾기 플랫폼 - **Fun편log - 개인 리펙토링한 버전입니다**  (FE)**
-
-<p align="center"><img src="https://user-images.githubusercontent.com/91148531/209322976-be25100d-eb57-4432-97dd-e28c6837f10c.png" width="100%"/></p>
-<br>
-
+# **나만의 편의점 찾기 플랫폼 - **Fun편log - **  (FE)**
+```개인 리펙토링한 버전입니다```
+# 팀 깃허브 [바로가기](https://github.com/Couch-Coders/12th-Fun-Pyeon-log-fe)
 
 ## 실행 방법
 
@@ -19,7 +17,8 @@ npm start
 # front : http://localhost:3000
 ```
 
-
+<p align="center"><img src="https://user-images.githubusercontent.com/91148531/209322976-be25100d-eb57-4432-97dd-e28c6837f10c.png" width="100%"/></p>
+<br>
 
 ## [🎥시연 영상 Youtube Link](https://www.youtube.com/watch?v=xDyhkX3ZDkw)
 
