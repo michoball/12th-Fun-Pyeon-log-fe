@@ -40,6 +40,7 @@ export const storeFilterAction = (
   data: ConvType[]
 ) => {
   let filteredStore: ConvType[]
+
   if (!brand.length) {
     filteredStore = [...data]
   } else if (brand.includes('기타')) {
@@ -52,11 +53,14 @@ export const storeFilterAction = (
       brand.includes(data.place_name.split(' ')[0])
     )
   }
-  return keyword.length
-    ? filteredStore.filter((data) =>
-        data.keywordList.some((keyword) => keyword.includes(keyword))
-      )
-    : filteredStore
+
+  if (keyword.length) {
+    return filteredStore.filter((data) =>
+      data.keywordList.some((keyword) => keyword.includes(keyword))
+    )
+  } else {
+    return filteredStore
+  }
 }
 
 // 검색된 전체 편의점에 대한 정보 가져오기

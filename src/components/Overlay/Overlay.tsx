@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getBrandImg } from '@services/markerImg'
+import { getBrandImg } from '@utils/kakao'
 import URLUtill from '@utils/urlUtill'
 import funlogImg from '../../assets/convImg/funlog.png'
 import phone from '../../assets/phone.png'

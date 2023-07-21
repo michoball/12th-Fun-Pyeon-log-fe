@@ -3,12 +3,21 @@ import FilterBox from '@components/FilterBox/FilterBox'
 import ListBox from '@components/ListView/ListBox/ListBox'
 import Map from '@components/Map/Map'
 import MapController from '@components/MapController/MapController'
-import { useKakaoMap } from '@context/MapContext'
-import { setUserPosition, userPositionSelect } from '@stores/auth/authSlice'
+import { userPositionSelect } from '@stores/auth/authSlice'
+import {
+  fetchAllStores,
+  sortedStoreSelect,
+  storeFilterAction,
+} from '@stores/conv/convSlice'
+import { ConvType } from '@stores/conv/convType'
+import {
+  brandSelect,
+  keywordSelect,
+  setSearchedCoord,
+} from '@stores/sort/sortSlice'
 import { useAppDispatch, useAppSelector } from '@stores/store'
-import { DEFAULT_KAKAO_COORD } from '@utils/constants'
-import useSearchStore, { SearchType } from 'hooks/useSearchStore'
-
+import { kakaoKeywordSearch } from '@utils/kakao'
+import { useKakaoMap } from 'hooks/MapContext'
 import styled from 'styled-components'
 import { SearchOutlined, FilterOutlined } from '@ant-design/icons'
 import {
@@ -27,44 +36,38 @@ styled(MapController)`
 
 const Main = () => {
   const dispatch = useAppDispatch()
-  const { mapApi, kakaoService } = useKakaoMap()
-  const [isFiltering, setIsFiltering] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-
+  const brandData = useAppSelector(brandSelect)
+  const keywordData = useAppSelector(keywordSelect)
+  const sortedConv = useAppSelector(sortedStoreSelect)
   const userPosition = useAppSelector(userPositionSelect)
-  const { searchStore } = useSearchStore()
+
+  const { mapApi, markerResetting } = useKakaoMap()
+
+  const [isFiltering, setIsFiltering] = useState(false)
+  const [stores, setStores] = useState<ConvType[]>([])
+
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const updateValue = (e: React.FormEvent) => {
     e.preventDefault()
     const { current } = inputRef
-    if (!current || !mapApi || !kakaoService) return
+    if (!current || !mapApi) return
     if (current.value.trim()) {
-      searchStore(SearchType.KEYWORD, mapApi, kakaoService, current.value)
+      kakaoKeywordSearch(mapApi, current.value, (mapData, lat, lng) => {
+        dispatch(setSearchedCoord({ lat, lng }))
+        dispatch(fetchAllStores({ mapData, lat, lng }))
+      })
     } else {
       alert('검색어를 입력해주세요.')
       current.value = ''
     }
   }
-
   useEffect(() => {
-    if (userPosition) return
-    if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser')
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude // 위도
-        const lng = position.coords.longitude // 경도
-        dispatch(setUserPosition({ lat, lng }))
-      },
-      () => {
-        alert('위치 정보 제공에 동의하지 않을 시 사용자의 위치는 서울역입니다.')
-        const lat = DEFAULT_KAKAO_COORD.lat
-        const lng = DEFAULT_KAKAO_COORD.lng
-        dispatch(setUserPosition({ lat, lng }))
-      }
-    )
-  }, [userPosition, dispatch])
+    const filteredStore = storeFilterAction(brandData, keywordData, sortedConv)
+    setStores(filteredStore)
+    markerResetting(filteredStore)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortedConv, markerResetting, brandData])
 
   return (
     <Wrapper>
@@ -92,17 +95,13 @@ const Main = () => {
         {isFiltering ? (
           <FilterBox setIsFiltering={setIsFiltering} />
         ) : (
-          <ListBox />
+          <ListBox stores={stores} />
         )}
       </ListView>
       <MapWrap>
         <Map />
-        {mapApi && userPosition && kakaoService && (
-          <MapController
-            mapApi={mapApi}
-            userPosition={userPosition}
-            kakaoService={kakaoService}
-          />
+        {mapApi && userPosition && (
+          <MapController mapApi={mapApi} userPosition={userPosition} />
         )}
       </MapWrap>
     </Wrapper>

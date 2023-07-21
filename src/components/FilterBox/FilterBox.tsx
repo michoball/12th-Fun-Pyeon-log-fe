@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import Select from '@components/common/Select/Select'
 import FunButton from '@components/styles/FunButton'
-import { useKakaoMap } from '@context/MapContext'
 import {
   brandSelect,
   keywordSelect,
@@ -11,6 +10,7 @@ import {
 } from '@stores/sort/sortSlice'
 import { useAppDispatch, useAppSelector } from '@stores/store'
 import { BRANDS, ITEMS } from '@utils/constants'
+import { useKakaoMap } from 'hooks/MapContext'
 import { FilterWrapper, KeywordGroup, Title } from './FilterBox.styles'
 
 interface filterProps {

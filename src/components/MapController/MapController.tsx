@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react'
 import FunButton, { BUTTON_TYPE_CLASSES } from '@components/styles/FunButton'
-import { searchedCoordSelect } from '@stores/sort/sortSlice'
-import { useAppSelector } from '@stores/store'
-import useSearchStore, { SearchType } from 'hooks/useSearchStore'
+import { fetchAllStores } from '@stores/conv/convSlice'
+import { searchedCoordSelect, setSearchedCoord } from '@stores/sort/sortSlice'
+import { useAppDispatch, useAppSelector } from '@stores/store'
+import { kakaoCategorySearch } from '@utils/kakao'
 import { AimOutlined } from '@ant-design/icons'
 import { ControlBtns } from './MapController.styles'
 
 interface MapControllerProps {
-  kakaoService: typeof kakao
   mapApi: kakao.maps.Map
   userPosition: {
     lat: number
@@ -18,36 +18,41 @@ interface MapControllerProps {
 const MapController: React.FC<MapControllerProps> = ({
   mapApi,
   userPosition,
-  kakaoService,
 }) => {
   const searchedCoord = useAppSelector(searchedCoordSelect)
-  const { searchStore } = useSearchStore()
+  const dispatch = useAppDispatch()
 
   useEffect(() => {
     if (searchedCoord) {
-      const center = new kakaoService.maps.LatLng(
-        searchedCoord.lat,
-        searchedCoord.lng
-      )
+      const center = new kakao.maps.LatLng(searchedCoord.lat, searchedCoord.lng)
       mapApi.setCenter(center)
     }
-    searchStore(SearchType.CATEGORY, mapApi, kakaoService)
+    kakaoCategorySearch(mapApi, (mapData, lat, lng) => {
+      dispatch(setSearchedCoord({ lat, lng }))
+      dispatch(fetchAllStores({ mapData, lat, lng }))
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   //  지도를 사용자의 위치로 이동하는 함수
   const moveToUserLocation = () => {
     // 마커가 표시될 위치를 geolocation으로 얻어온 좌표로 생성합니다
-    const locPosition = new kakaoService.maps.LatLng(
+    const locPosition = new kakao.maps.LatLng(
       userPosition.lat,
       userPosition.lng
     )
     mapApi.setCenter(locPosition)
-    searchStore(SearchType.CATEGORY, mapApi, kakaoService)
+    kakaoCategorySearch(mapApi, (mapData, lat, lng) => {
+      dispatch(setSearchedCoord({ lat, lng }))
+      dispatch(fetchAllStores({ mapData, lat, lng }))
+    })
   }
 
   const searchFromHereHandler = () => {
-    searchStore(SearchType.CATEGORY, mapApi, kakaoService)
+    kakaoCategorySearch(mapApi, (mapData, lat, lng) => {
+      dispatch(setSearchedCoord({ lat, lng }))
+      dispatch(fetchAllStores({ mapData, lat, lng }))
+    })
   }
 
   return (

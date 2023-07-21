@@ -6,6 +6,7 @@ import Navigation from '@pages/Navigation/Navigation'
 import ProtectRoute from '@pages/ProtectRoute/ProtectRoute'
 import Store from '@pages/Store/Store'
 import Write from '@pages/Write/Write'
+import PageWrapper from './PageWrapper'
 
 export interface RouterBase {
   id: number
@@ -49,10 +50,10 @@ export const routers = createBrowserRouter(
     return {
       path: route.path,
       element: (
-        <>
+        <PageWrapper>
           <Navigation />
           {route.element}
-        </>
+        </PageWrapper>
       ),
     }
   })

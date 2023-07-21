@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import KeywordBadge from '@components/styles/KeywordBadge'
-import { getBrandImg } from '@services/markerImg'
+import { getBrandImg } from '@utils/kakao'
 import funlogImg from '../../../assets/convImg/funlog.png'
 import { PhoneFilled, PushpinFilled, StarFilled } from '@ant-design/icons'
 import {

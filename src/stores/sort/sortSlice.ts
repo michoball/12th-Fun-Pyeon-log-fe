@@ -51,6 +51,6 @@ export const searchedCoordSelect = createSelector(
   (sort) => sort.searchedCoord
 )
 
-export const { saveBrand, saveKeyword, setSearchedCoord, resetSort } =
+export const { setSearchedCoord, resetSort, saveBrand, saveKeyword } =
   sortSlice.actions
 export default sortSlice.reducer

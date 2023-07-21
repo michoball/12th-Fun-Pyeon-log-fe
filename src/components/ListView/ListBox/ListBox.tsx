@@ -1,46 +1,37 @@
 import React, { useState, useEffect } from 'react'
 import List from '@components/ListView/List/List'
 import LoadingWithLogo from '@components/styles/LoadingWithLogo'
-import { useKakaoMap } from '@context/MapContext'
 import {
   convSortTypeSelect,
   convloadingSelect,
   setClickedStore,
   setSortType,
-  sortedStoreSelect,
-  storeFilterAction,
 } from '@stores/conv/convSlice'
 import { ConvType } from '@stores/conv/convType'
-import { brandSelect, keywordSelect } from '@stores/sort/sortSlice'
 import { useAppDispatch, useAppSelector } from '@stores/store'
 import { LIST_SORT_ITEMS } from '@utils/constants'
+import { useKakaoMap } from 'hooks/MapContext'
 import { ListWrapper, SortBtns, ResultBox } from './ListBox.styles'
 
-const ListBox = () => {
+interface ListBoxProps {
+  stores: ConvType[]
+}
+
+const ListBox: React.FC<ListBoxProps> = ({ stores }) => {
   const dispatch = useAppDispatch()
-  const sortedConv = useAppSelector(sortedStoreSelect)
   const loading = useAppSelector(convloadingSelect)
   const sortType = useAppSelector(convSortTypeSelect)
-  const brandData = useAppSelector(brandSelect)
-  const keywordData = useAppSelector(keywordSelect)
 
-  const { selectedMarker, markerResetting } = useKakaoMap()
+  const { selectedMarkerId } = useKakaoMap()
 
   const [targetStoreId, setTargetStoreId] = useState('')
-  const [stores, setStores] = useState<ConvType[]>([])
 
   useEffect(() => {
-    if (selectedMarker.length > 0) {
-      setTargetStoreId(selectedMarker)
-      dispatch(setClickedStore(selectedMarker))
+    if (selectedMarkerId.length) {
+      setTargetStoreId(selectedMarkerId)
+      dispatch(setClickedStore(selectedMarkerId))
     }
-  }, [selectedMarker, dispatch])
-
-  useEffect(() => {
-    const filteredStore = storeFilterAction(brandData, keywordData, sortedConv)
-    setStores(filteredStore)
-    markerResetting(filteredStore)
-  }, [sortedConv, markerResetting, brandData, keywordData])
+  }, [selectedMarkerId, dispatch])
 
   return (
     <ListWrapper>

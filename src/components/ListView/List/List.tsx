@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react'
 import KeywordBadge from '@components/styles/KeywordBadge'
-import { useKakaoMap } from '@context/MapContext'
 import { clickedStoreSelect, setClickedStore } from '@stores/conv/convSlice'
 import { useAppDispatch, useAppSelector } from '@stores/store'
+import { useKakaoMap } from 'hooks/MapContext'
 import { StarFilled } from '@ant-design/icons'
 import { ConBox, Title, Content } from './List.styles'
 
@@ -33,12 +33,12 @@ const List: React.FC<ListProps> = ({
   const listRef = useRef<HTMLLIElement>(null)
   const clickedStore = useAppSelector(clickedStoreSelect)
 
-  const { mapApi, kakaoService, storeOverlay } = useKakaoMap()
+  const { mapApi, storeOverlay } = useKakaoMap()
 
   const listClickHandler = () => {
     if (clickedStore && clickedStore.id === storeId) return
-    if (mapApi && kakaoService && storeOverlay) {
-      const center = new kakaoService.maps.LatLng(lat, lng)
+    if (mapApi && storeOverlay) {
+      const center = new kakao.maps.LatLng(lat, lng)
       storeOverlay.setPosition(center)
       storeOverlay.setContent('<div id="kakao-overlay"></div>')
       storeOverlay.setMap(mapApi)

@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import Tooltip from '@components/tooltip/Tooltip'
 
-import { useKakaoMap } from '@context/MapContext'
 import { searchedCoordSelect } from '@stores/sort/sortSlice'
 import { useAppSelector } from '@stores/store'
 import { DEFAULT_KAKAO_COORD } from '@utils/constants'
+import { useKakaoMap } from 'hooks/MapContext'
 
 import { MapViewer } from './Map.styles'
 
@@ -12,11 +12,10 @@ const Map = () => {
   const isMapMounted = useRef(false)
   const searchedCoord = useAppSelector(searchedCoordSelect)
 
-  const { setMapApi, mapApi, setKakao } = useKakaoMap()
+  const { setMapApi, mapApi, setOverlay } = useKakaoMap()
 
   useEffect(() => {
-    if (!isMapMounted.current && 'kakao' in window) {
-      const { kakao } = window
+    if (!isMapMounted.current) {
       kakao.maps.load(() => {
         const container = document.getElementById('map') as HTMLDivElement
         const mapOption = {
@@ -30,13 +29,13 @@ const Map = () => {
         }
         const map = new kakao.maps.Map(container, mapOption)
         setMapApi(map)
-        setKakao(kakao)
+        setOverlay()
       })
     }
     return () => {
       isMapMounted.current = true
     }
-  }, [setMapApi, searchedCoord, setKakao])
+  }, [setMapApi, searchedCoord, setOverlay])
 
   // 화면 사이즈 조정시 가운데 재 조정을 위한 함수
   const resizeMap = useCallback(() => {
