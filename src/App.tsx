@@ -32,10 +32,10 @@ function App() {
 
   useEffect(() => {
     // API 스크립트 로드
-    if (!isScriptLoaded) {
+    if (!isScriptLoaded && process.env.REACT_APP_KAKAO_API_KEY) {
       const script = document.createElement('script')
       script.type = 'text/javascript'
-      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=d25f19cf0a1860dd105275f8a970b86d&libraries=services&autoload=false`
+      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_API_KEY}&libraries=services&autoload=false`
 
       script.onload = () => {
         setIsScriptLoaded(true)
