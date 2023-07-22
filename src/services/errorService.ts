@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const axiosErrorHandler = (error: any) => {
   if (axios.isAxiosError(error)) {
     const message = errorController(error)
