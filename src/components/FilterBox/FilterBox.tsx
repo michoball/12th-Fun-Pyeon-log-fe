@@ -4,7 +4,7 @@ import FunButton from '@components/styles/FunButton'
 import {
   brandSelect,
   keywordSelect,
-  resetSort,
+  resetFilter,
   saveBrand,
   saveKeyword,
 } from '@stores/sort/sortSlice'
@@ -35,7 +35,7 @@ const Filter: React.FC<filterProps> = ({ setIsFiltering }) => {
   }
 
   const sortInitHandler = () => {
-    dispatch(resetSort())
+    dispatch(resetFilter())
     setIsFiltering(false)
   }
 

@@ -8,6 +8,7 @@ import emartImg from '../assets/convImg/emart.png'
 import gsImg from '../assets/convImg/gs.png'
 import ministopImg from '../assets/convImg/ministop.png'
 import sevenImg from '../assets/convImg/seven.png'
+// import { calcDistance } from './calc'
 
 export enum CUSTOM_MARKER_CLASS {
   gs = 'GS25',
@@ -67,7 +68,6 @@ export const kakaoCategorySearch = (
       if (status === kakao.maps.services.Status.OK) {
         const lat = mapApi.getCenter().getLat()
         const lng = mapApi.getCenter().getLng()
-
         callbackFn(mapData, lat, lng)
       } else {
         alert(
@@ -97,18 +97,24 @@ export const kakaoKeywordSearch = (
   kakaoPlace.keywordSearch(`${searchTerm} 편의점`, (mapData, status) => {
     if (status === kakao.maps.services.Status.OK) {
       const bounds = new kakao.maps.LatLngBounds()
+      const lat = mapApi.getCenter().getLat()
+      const lng = mapApi.getCenter().getLng()
       for (let i = 0; i < mapData.length; i++) {
         // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
+        const customDistance = calcDistance(
+          lat,
+          lng,
+          Number(mapData[i].y),
+          Number(mapData[i].x)
+        )
         bounds.extend(
           new kakao.maps.LatLng(Number(mapData[i].y), Number(mapData[i].x))
         )
+        mapData[i].distance = customDistance
       }
       mapApi.setBounds(bounds)
 
       // 센터 찾아서 가운데 위치 찾고 마커 표시
-      const lat = mapApi.getCenter().getLat()
-      const lng = mapApi.getCenter().getLng()
-
       callbackFn(mapData, lat, lng)
     } else {
       alert(
@@ -116,4 +122,24 @@ export const kakaoKeywordSearch = (
       )
     }
   })
+}
+
+const calcDistance = (lat: number, lng: number, lat2: number, lng2: number) => {
+  const deg2rad = (deg: number) => {
+    return deg * (Math.PI / 180)
+  }
+
+  const R = 6371 // Radius of the earth in km
+  const dLat = deg2rad(lat2 - lat) // deg2rad below
+  const dLon = deg2rad(lng2 - lng)
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(deg2rad(lat)) *
+      Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  const d = (R * c).toFixed(4) // Distance in km
+
+  return d
 }

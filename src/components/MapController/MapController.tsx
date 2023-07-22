@@ -29,7 +29,7 @@ const MapController: React.FC<MapControllerProps> = ({
     }
     kakaoCategorySearch(mapApi, (mapData, lat, lng) => {
       dispatch(setSearchedCoord({ lat, lng }))
-      dispatch(fetchAllStores({ mapData, lat, lng }))
+      dispatch(fetchAllStores({ mapData }))
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -44,14 +44,14 @@ const MapController: React.FC<MapControllerProps> = ({
     mapApi.setCenter(locPosition)
     kakaoCategorySearch(mapApi, (mapData, lat, lng) => {
       dispatch(setSearchedCoord({ lat, lng }))
-      dispatch(fetchAllStores({ mapData, lat, lng }))
+      dispatch(fetchAllStores({ mapData }))
     })
   }
 
   const searchFromHereHandler = () => {
     kakaoCategorySearch(mapApi, (mapData, lat, lng) => {
       dispatch(setSearchedCoord({ lat, lng }))
-      dispatch(fetchAllStores({ mapData, lat, lng }))
+      dispatch(fetchAllStores({ mapData }))
     })
   }
 

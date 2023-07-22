@@ -15,7 +15,6 @@ export interface ConvState {
   stores: ConvType[]
   sortedStores: ConvType[]
   clickedStore: ConvType | null
-  sortType: 'star' | 'review' | 'distance'
   loading: boolean
   error: string
 }

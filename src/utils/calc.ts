@@ -18,7 +18,7 @@ export const calcDistance = (
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2)
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  const d = R * c * 1000 // Distance in m
+  const d = (R * c).toFixed(4) // Distance in km
 
-  return Math.floor(d)
+  return d
 }

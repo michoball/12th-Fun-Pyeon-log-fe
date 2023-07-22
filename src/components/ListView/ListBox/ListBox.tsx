@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import List from '@components/ListView/List/List'
 import LoadingWithLogo from '@components/styles/LoadingWithLogo'
-import {
-  convSortTypeSelect,
-  convloadingSelect,
-  setClickedStore,
-  setSortType,
-} from '@stores/conv/convSlice'
+import { convloadingSelect, setClickedStore } from '@stores/conv/convSlice'
 import { ConvType } from '@stores/conv/convType'
+import {
+  saveSortType,
+  sortTypeSelect,
+  storeSortAction,
+} from '@stores/sort/sortSlice'
 import { useAppDispatch, useAppSelector } from '@stores/store'
 import { LIST_SORT_ITEMS } from '@utils/constants'
 import { useKakaoMap } from 'hooks/MapContext'
@@ -20,10 +20,13 @@ interface ListBoxProps {
 const ListBox: React.FC<ListBoxProps> = ({ stores }) => {
   const dispatch = useAppDispatch()
   const loading = useAppSelector(convloadingSelect)
-  const sortType = useAppSelector(convSortTypeSelect)
+  const sortType = useAppSelector(sortTypeSelect)
+  const sortedStores = useMemo(
+    () => storeSortAction(sortType, stores),
+    [sortType, stores]
+  )
 
   const { selectedMarkerId } = useKakaoMap()
-
   const [targetStoreId, setTargetStoreId] = useState('')
 
   useEffect(() => {
@@ -40,7 +43,7 @@ const ListBox: React.FC<ListBoxProps> = ({ stores }) => {
           <li
             key={sort.type}
             className={sortType === sort.type ? 'active' : ''}
-            onClick={() => dispatch(setSortType(sort.type))}
+            onClick={() => dispatch(saveSortType(sort.type))}
           >
             {sort.title}
           </li>
@@ -53,7 +56,7 @@ const ListBox: React.FC<ListBoxProps> = ({ stores }) => {
         ) : stores.length === 0 ? (
           <p className="noResult">검색 결과가 없습니다.</p>
         ) : (
-          stores.map((store) => (
+          sortedStores.map((store) => (
             <List
               key={store.id}
               starCount={store.starCount}

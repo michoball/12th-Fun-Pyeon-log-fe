@@ -55,7 +55,7 @@ const Main = () => {
     if (current.value.trim()) {
       kakaoKeywordSearch(mapApi, current.value, (mapData, lat, lng) => {
         dispatch(setSearchedCoord({ lat, lng }))
-        dispatch(fetchAllStores({ mapData, lat, lng }))
+        dispatch(fetchAllStores({ mapData }))
       })
     } else {
       alert('검색어를 입력해주세요.')
