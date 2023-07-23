@@ -33,12 +33,12 @@ function App() {
   useEffect(() => {
     // API 스크립트 로드
     if (!isScriptLoaded && process.env.REACT_APP_KAKAO_API_KEY) {
-      console.log(process.env.REACT_APP_KAKAO_API_KEY)
       const script = document.createElement('script')
       script.type = 'text/javascript'
       script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_API_KEY}&libraries=services&autoload=false`
 
       script.onload = () => {
+        console.log('스크립트 로드 ')
         setIsScriptLoaded(true)
       }
       if (!document.querySelector(`script[src="${script.src}"]`)) {
@@ -47,10 +47,11 @@ function App() {
     }
   }, [isScriptLoaded])
 
-  if (!isScriptLoaded) {
-    return <></>
-  }
-  return <RouterProvider router={routers} />
+  return isScriptLoaded ? (
+    <RouterProvider router={routers} />
+  ) : (
+    <h1> 페이지 로드 X</h1>
+  )
 }
 
 export default App
