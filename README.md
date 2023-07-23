@@ -1,9 +1,11 @@
 <br>
 <p align="center"><img src="https://user-images.githubusercontent.com/91148531/209321821-f21c3ec8-0b49-4e3c-831a-886136ecf88e.png" width="100%"/></p>
 
-```개인 리펙토링한 버전입니다```
+`개인 리펙토링한 버전입니다`
+
+# **나만의 편의점 찾기 플랫폼 - **Fun편log - ** (FE)**
+
 ### **🏠 _배포 주소_** [https://reliable-khapse-798e03.netlify.app/](https://reliable-khapse-798e03.netlify.app/)
-# **나만의 편의점 찾기 플랫폼 - **Fun편log - **  (FE)**
 
 ## 실행 방법
 
@@ -16,69 +18,211 @@ npm start
 ```
 
 <p align="center"><img src="https://user-images.githubusercontent.com/91148531/209322976-be25100d-eb57-4432-97dd-e28c6837f10c.png" width="100%"/></p>
-<br>
 
+### [팀 깃허브](https://github.com/Couch-Coders/12th-Fun-Pyeon-log-fe) / [🎥시연 영상 Youtube Link](https://www.youtube.com/watch?v=xDyhkX3ZDkw)
 
-## [팀 깃허브](https://github.com/Couch-Coders/12th-Fun-Pyeon-log-fe)  / [🎥시연 영상 Youtube Link](https://www.youtube.com/watch?v=xDyhkX3ZDkw)
+## ⏰ 리펙토링 기간
 
-<br>
+- 2022.07.14 ~ 2022.07.22
 
-## 🛒 전국의 편의점을 찾아볼 수 있는 서비스
+# 개선 사항
 
-> - 전국 약 5만개의 편의점 정보를 찾아볼 수 있습니다!
-> - 편의점의 리뷰, 키워드를 통해 원하는 편의점을 찾을 수 있습니다!
+### 1. 카카오 지도 동적로드
 
-## 🗺 내가 원하는 곳이면 어디든 조회
+기존 index.html 내 script 태그로 넣어둔 kakao map sdk 기능 동적으로 로드 되도록
 
-> - 브라우저에서 위치를 허용하면 내 위치에서 가까운 편의점을 찾을 수 있습니다!
-> - 지도를 움직이거나 검색을 통해 내가 원하는 곳의 편의점을 찾을 수 있습니다!
+App.tsx에서 다룸
 
-## 🔍 다양한 옵션을 가지고 입맛에 맞게 필터링
+```typescript
+useEffect(() => {
+  // API 스크립트 로드
+  if (!isScriptLoaded && process.env.REACT_APP_KAKAO_API_KEY) {
+    const script = document.createElement('script')
+    script.type = 'text/javascript'
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_API_KEY}&libraries=services&autoload=false`
 
-> - 별점, 거리순, 키워드 등 다양한 방법으로 필터링할 수 있습니다!
+    script.onload = () => {
+      console.log('스크립트 로드 ')
+      setIsScriptLoaded(true)
+    }
+    if (!document.querySelector(`script[src="${script.src}"]`)) {
+      document.body.appendChild(script)
+    }
+  }
+}, [isScriptLoaded])
+```
 
-## 👬 편의점 상세페이지에서 얻는 다양한 정보와 리뷰
-> - 해당 편의점을 이용한 유저들의 평균 별점을 확인해보세요!
-> - 실시간 리뷰에서 편의점 대한 상세한 이용 후기들을 만나보세요!
-> - 유저들이 직접 선택한 해당 편의점의 대표 키워드 Best 5를 확인해보세요!
+### 2. 편의점 필터링 및 정렬 값 유지 이슈 해결
 
-## ✏️ 이제는 당신이 프로 리뷰어
-> - 편의점을 이용하셨나요? 로그인하고 함께 의견을 공유해 보아요!
-> - 앗 잘못 작성하셨나요? 괜찮습니다 수정 ・ 삭제할 수 있어요!
-> - 별점과 15개의 다양한 키워드도 함께 선택해보세요!
+- 편의점 브랜드명, 유저 키워드 별 필터링
+- 거리, 리뷰 수, 별점 수 정렬
 
+위 두가지 값 중 새로고침 시
 
-<br>
-<br>
+필터링 값이 유지는 되나 실제 검색된 편의점 리스트에 반영되지 않던 이슈 해결
 
-## 👨‍💻 팀원 소개
-|[강명훈](https://github.com/michoball) |[김예지](https://github.com/thisisyeji) |[오도경](https://github.com/DoKyeongOh)                 |
-| :--------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------:|
-| <img src="https://res.cloudinary.com/divncmfka/image/upload/v1645906082/me_bvddac.jpg" width="150" height="150"> | <img src="https://res.cloudinary.com/divncmfka/image/upload/v1645950212/%E1%84%89%E1%85%A5%E1%86%AB%E1%84%92%E1%85%B4%E1%84%82%E1%85%B5%E1%86%B7_yr5abm.jpg" width="150" height="150"> | <img src="https://user-images.githubusercontent.com/69510442/156530657-0bf8a79c-232b-4fd4-b10b-1f2c080d2aa3.png" width="150" height="150"> |
-|FrontEnd |FrontEnd |BackEnd
+```typescript
+// main.tsx 중
+useEffect(() => {
+  const filteredStore = storeFilterAction(brandData, keywordData, sortedConv)
+  setStores(filteredStore)
+  markerResetting(filteredStore)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [sortedConv, markerResetting, brandData])
+```
 
-<br>
+편의점 리스트 업데이트 시 필터링 상태값을 기준으로 storeFilterAction 함수 실행
 
+필터링 값 적용된 값으로 state에 저장하여 보여줌
 
-<br>
+```ts
 
-<br>
+const ListBox: React.FC<ListBoxProps> = ({ stores }) => {
+  const sortType = useAppSelector(sortTypeSelect)
+  const sortedStores = useMemo(
+    () => storeSortAction(sortType, stores),
+    [sortType, stores]
+  )
 
-## ⏰ 개발 기간
-- ### 2022.11.15 ~ 2022.11.24 (기획 2주)
-- ### 2022.11.15 ~ 2022.11.24 (기획 2주)
-- ### 2022.11.25 ~ 2022.12.22 (개발 4주)
-- ### 2022.12.23 ~ 2022.12.30 (사후관리/성능개선 1주)
-- ### 2022.07.14 ~ 2022.07.22 (개인 리팩토링 1주)
-<br>
+  return (
+  {sortedStores.map((store) => (
+            <List key={store}/>))}
+  )
+}
+```
 
-<br>
+ListBox.tsx 에서 필터링 된 편의점들 props로 받음
 
-## 🛠️ 개발 환경
+이후 storeSortAction를 통해 정렬 값이 적용된 편의점 리스트로 render
 
-<br>
+### 3. 편의점 검색 함수 코드 개선
 
-### **FrontEnd**
+kakao.maps.services.Places() 를 사용한 키워드 검색 카테고리 검색 기능 개선
+
+- 기존 하나의 searchStore 함수에 searchType 파라미터로 구분하여 수행하던 방식에서 키워드와 카테고리 각각 따로 함수구현
+
+- 기존 함수내에 존재하던 dispatch 와 다른 부가 기능 제거 -> callback 함수를 파라미터로 받아 검색된 편의점에 대한 추가 작업 진행
+
+기존 코드
+
+```ts
+// useSearchStore.tsx
+
+const useSearchStore = () => {
+  const dispatch = useAppDispatch()
+  const { deleteMarkers } = useContext(MapContext)
+
+  const searchStore = useCallback(
+    (searchType: SearchType, mapApi: kakao.maps.Map, searchTerm?: string) => {
+      // dispatch, deleteMarker 등 부수 작업 진행
+
+      // 편의점 검색 타입에 따라 각각 다른 메서드 사용
+      if (searchType === SearchType.KEYWORD && searchTerm) {
+        // 키워드 검색 후 searchCallBack 함수 실행
+      } else {
+         // 카테고리 검색 후 searchCallBack 함수 실행
+      }
+    },
+    [dispatch, searchCallBack, deleteMarkers]
+  )
+
+    const searchCallBack = useCallback(
+    (
+      data: kakao.maps.services.PlacesSearchResult,
+      map: kakao.maps.Map,
+      searchType: SearchType
+    ) => {
+      // 검색 타입을 계속 이용해 작업 수행
+      if (searchType === SearchType.KEYWORD) {
+      키워드 검색일 때 특정 작업수행
+      }
+     // 결과 값을 dispatch action으로 보내는 작업
+    },
+    [dispatch]
+  )
+
+  return { searchStore }
+```
+
+개선 코드
+
+```ts
+// utils/kakao.ts
+// 키워드 검색
+export const kakaoKeywordSearch = (
+  mapApi: kakao.maps.Map,
+  searchTerm: string,
+  callbackFn: (
+    mapData: kakao.maps.services.PlacesSearchResult,
+    lat: number,
+    lng: number
+  ) => void
+) => {
+  const kakaoPlace = new kakao.maps.services.Places(mapApi)
+
+  kakaoPlace.keywordSearch(
+    // 키워드 검색 진행
+    // 결과값을 callbackFn에 전달
+    callbackFn(mapData, lat, lng)
+  )
+}
+
+// 카테고리 검색도 이와 유사
+```
+
+> 검색 기능의 가독성이 향상되고 함수의 관심사를 분리할 수 있었다
+
+### 4. Redux devtool 실행시 앱 다운 이슈 해결
+
+conv slice 에 있는 createAsyncThunk로 구현된 `fetchAllStores` 에 많고 불필요한 연산이 있어서
+
+redux devtool 사용시 브라우져가 다운되는 이슈가 있었다.
+
+`fetchAllStores` 함수에서 수행되는 연산을 다른 곳으로 분리하여 해당 함수의 부담을 줄여 해결 할 수 있었다.
+
+기존 코드
+
+```ts
+// fetchAllStores 내부
+const storeIds = mapData.map((result) => result.id)
+const stores = await StoreService.getAllStore(storeIds)
+const storeData = stores.map((data) => {
+  const [matchStore] = mapData.filter((store) => store.id === data.storeId)
+  const customDistance = calcDistance(
+    map,
+    Number(matchStore.y),
+    Number(matchStore.x)
+  )
+  return { ...data, ...matchStore, customDistance }
+})
+if (storeData[0].distance) {
+  return storeData.sort((a, b) => Number(a.distance) - Number(b.distance))
+} else {
+  return storeData.sort(
+    (a, b) => Number(a.customDistance) - Number(b.customDistance)
+  )
+}
+```
+
+calcDistance 함수와 sort는 여기서 하지 않아도 되는 작업이다.
+
+개선 코드
+
+```ts
+// fetchAllStores 내부
+const storeIds = mapData.map((result) => result.id)
+const stores = await StoreService.getAllStore(storeIds)
+
+const storeData = stores.map((data) => {
+  const [matchStore] = mapData.filter((store) => store.id === data.storeId)
+  return { ...data, ...matchStore }
+})
+return storeData
+```
+
+> 함수의 부담을 줄이고 역할에 맞는 작업만을 진행하도록 개선하였다.
+
+## 🛠️ **FrontEnd** 개발 환경
 
 <p>
 <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?style=flat&square&logo=TypeScript&logoColor=white"/>
@@ -94,49 +238,7 @@ npm start
 
 ### [FE 프로젝트 칸반보드](https://github.com/orgs/Couch-Coders/projects/10)
 
-<br>
-
-### **BackEnd**
-
-<p>
-
-<img src="https://img.shields.io/badge/java-007396?style=flat-square&logo=java&logoColor=white"/>
-<img src="https://img.shields.io/badge/Spring-6DB33F?style=flat-square&logo=Spring&logoColor=white"/>
-<img src="https://img.shields.io/badge/Spring Boot -6DB33F?style=flat-square&logo=Spring Boot&logoColor=white"/>
-<img src="https://img.shields.io/badge/SpringSecurity-6DB33F?style=flat-square&logo=SpringSecurity&logoColor=white"/>
-<img src="https://img.shields.io/badge/Data JPA-6DB33F?style=flat-square&logo=&logoColor=white"/>
-<img src="https://img.shields.io/badge/Query DSL-0769AD?style=flat-square&logo=&logoColor=white"/>
-<img src="https://img.shields.io/badge/PostgreSQL-007396?style=flat-square&logo=postgresql&logoColor=white"/>
-<img src="https://img.shields.io/badge/Oauth-4285F4?style=flat-square&logo=Google&logoColor=white"/>
-<img src="https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=Firebase&logoColor=white"/>
-</p>
-
-### [BE 프로젝트 칸반보드](https://github.com/orgs/Couch-Coders/projects/9)
-
-<br>
-
-### **Infra**
-
-<p>
-<img src="https://img.shields.io/badge/Qoddi-%20-blue"/>
-<img src="https://img.shields.io/badge/GitHub Actions -2088FF?style=flat-square&logo=GitHub Actions&logoColor=white"/>
-
-</p>
-
-<br>
-<br>
-
-## ⚙️ 시스템 아키텍처
-![시스템 아키텍처](https://user-images.githubusercontent.com/79836148/209773147-272d8545-214e-4b78-b424-0627d54aaab8.png)
-
-
-### ERD 설계
-
-![erd](https://user-images.githubusercontent.com/91148531/208931076-d103ec59-8471-40ed-9625-41adc94b646e.png)
-
-
-
-## 🛠 기획 및 설계
+## 🛠️ 기획 및 설계
 
 [기능 명세서](https://myunghun-kang.notion.site/FUN-log-2273ec05b91e43c9aa9d523fb6728e37)
 <br>
@@ -152,12 +254,3 @@ npm start
 
 [API 명세서](https://myunghun-kang.notion.site/API-a947cc01e1e446649d8fc6e89b100108)
 <br>
-
-
-<br>
-
-## 백엔드 깃 레포
-
-[**Fun편log** Back-end Git Repository](https://github.com/Couch-Coders/12th-Fun-Pyeon-log-be)
-
-<br/>
