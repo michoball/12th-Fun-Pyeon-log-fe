@@ -37,7 +37,7 @@ function App() {
       script.type = 'text/javascript'
       script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_API_KEY}&libraries=services&autoload=false`
 
-      script.onload = () => 
+      script.onload = () => {
         setIsScriptLoaded(true)
       }
       if (!document.querySelector(`script[src="${script.src}"]`)) {
