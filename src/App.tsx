@@ -37,8 +37,7 @@ function App() {
       script.type = 'text/javascript'
       script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_API_KEY}&libraries=services&autoload=false`
 
-      script.onload = () => {
-        console.log('스크립트 로드 ')
+      script.onload = () => 
         setIsScriptLoaded(true)
       }
       if (!document.querySelector(`script[src="${script.src}"]`)) {
@@ -47,11 +46,7 @@ function App() {
     }
   }, [isScriptLoaded])
 
-  return isScriptLoaded ? (
-    <RouterProvider router={routers} />
-  ) : (
-    <h1> 페이지 로드 X</h1>
-  )
+  return isScriptLoaded ? <RouterProvider router={routers} /> : <></>
 }
 
 export default App
