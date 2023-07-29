@@ -132,6 +132,7 @@ const convSlice = createSlice({
         state.loading = false
         state.stores = action.payload
         state.sortedStores = action.payload
+        state.clickedStore = initialState.clickedStore
       }
     )
     builder.addCase(fetchAllStores.rejected, (state, action) => {

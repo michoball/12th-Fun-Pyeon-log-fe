@@ -15,7 +15,7 @@ interface ListProps {
   keywords: string[]
   reviewCount: number
   targetStoreId: string
-  setTargetStoreId: (targetStoreId: string) => void
+  setTargetStoreId: React.Dispatch<React.SetStateAction<string>>
 }
 
 const List: React.FC<ListProps> = ({
@@ -37,6 +37,7 @@ const List: React.FC<ListProps> = ({
 
   const listClickHandler = () => {
     if (clickedStore && clickedStore.id === storeId) return
+
     if (mapApi && storeOverlay) {
       const center = new kakao.maps.LatLng(lat, lng)
       storeOverlay.setPosition(center)
