@@ -1,6 +1,4 @@
-import axios from 'axios'
-
-// const BASE_URL = 'https://jlvadtrbkq.us16.qoddiapp.com/'
+import { api } from '@utils/api'
 
 type SignInParam = string
 
@@ -10,7 +8,7 @@ interface UserDTO {
 }
 
 const signIn = async (token: SignInParam) => {
-  const response = await axios.get('/api/users/me', {
+  const response = await api.get('/api/users/me', {
     headers: { Authorization: `${token}` },
     withCredentials: true,
   })
@@ -18,7 +16,7 @@ const signIn = async (token: SignInParam) => {
 }
 
 const signOut = async () => {
-  const response = await axios.delete('/api/users/me', {
+  const response = await api.delete('/api/users/me', {
     withCredentials: true,
   })
   return response

@@ -1,10 +1,10 @@
 import { ReviewType, WriteType } from '@stores/review/reviewType'
+import { api } from '@utils/api'
 import { REVIEW_SIZE } from '@utils/constants'
-import axios from 'axios'
 
 const getAllReviews = async (storeId: string, page: number) => {
   const params = { page: `${page}`, size: REVIEW_SIZE }
-  const response = await axios.get<ReviewType[]>(
+  const response = await api.get<ReviewType[]>(
     `/api/stores/${storeId}/reviews`,
     {
       params,
@@ -14,7 +14,7 @@ const getAllReviews = async (storeId: string, page: number) => {
 }
 
 const createReview = async (reviewData: WriteType, storeId: string) => {
-  const response = await axios.post(
+  const response = await api.post(
     `/api/stores/${storeId}/reviews`,
     reviewData,
     {
@@ -29,7 +29,7 @@ const updateReview = async (
   storeId: string,
   reviewId: number
 ) => {
-  const response = await axios.put(
+  const response = await api.put(
     `/api/stores/${storeId}/reviews/${reviewId}`,
     reviewData,
     {
@@ -40,7 +40,7 @@ const updateReview = async (
 }
 
 const deleteReview = async (storeId: string, reviewId: number) => {
-  const response = await axios.delete(
+  const response = await api.delete(
     `/api/stores/${storeId}/reviews/${reviewId}`,
     {
       withCredentials: true,
