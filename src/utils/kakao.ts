@@ -113,9 +113,10 @@ export const kakaoKeywordSearch = (
         mapData[i].distance = customDistance
       }
       mapApi.setBounds(bounds)
-
+      const newLat = mapApi.getCenter().getLat()
+      const newLng = mapApi.getCenter().getLng()
       // 센터 찾아서 가운데 위치 찾고 마커 표시
-      callbackFn(mapData, lat, lng)
+      callbackFn(mapData, newLat, newLng)
     } else {
       alert(
         `${searchTerm} 편의점이 존재하지 않습니다. 다른 이름으로 검색해주세요`
